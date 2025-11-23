@@ -79,23 +79,37 @@ class EmbeddedDiagnosticProvider {
         const diagnostics = [];
         const board = this.hardwareDB.getCurrentBoard();
         
-        if (!board) return diagnostics;
+        // Continue validation even without board info for basic conflict detection
         
-        const pinUsagePattern = /pinMode\s*\(\s*(\d+)\s*,\s*(\w+)\s*\)/g;
+        // Match both numeric pins and analog pins (A0-A7)
+        const pinUsagePattern = /pinMode\s*\(\s*([A-Z]?\d+)\s*,\s*(\w+)\s*\)/g;
         let match;
         
         const usedPins = new Map(); // Track pin configurations
+        const attachInterruptPins = new Set(); // Track interrupt pins
+        
+        // Check for Wire.begin() usage (A4/A5 on Uno)
+        const usesWire = text.includes('Wire.begin');
+        if (usesWire) {
+            usedPins.set(18, { mode: 'I2C_SDA', line: -1, func: 'Wire.begin()' });
+            usedPins.set(19, { mode: 'I2C_SCL', line: -1, func: 'Wire.begin()' });
+        }
         
         while ((match = pinUsagePattern.exec(text)) !== null) {
-            const pin = parseInt(match[1]);
+            const pinStr = match[1];
+            // Convert A0-A7 to numeric (A0=14, A1=15, etc.)
+            const pin = pinStr.startsWith('A') ? 14 + parseInt(pinStr.substring(1)) : parseInt(pinStr);
             const mode = match[2];
-            const line = text.substring(0, match.index).split('\n').length - 1;
+            const pos = document.positionAt(match.index);
             
-            // Validate pin exists
-            if (!this.hardwareDB.isPinValid(pin)) {
+            // Validate pin exists (only if board info available)
+            if (board && !this.hardwareDB.isPinValid(pin)) {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Error,
-                    range: this.getRange(document, line, match.index, match[0].length),
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + match[0].length }
+                    },
                     message: `Pin ${pin} is not valid for ${board.name}. Valid pins: ${board.pins.digital.join(', ')}`,
                     source: 'Sentinel',
                     code: 'invalid-pin'
@@ -106,20 +120,36 @@ class EmbeddedDiagnosticProvider {
             // Check for pin conflicts
             if (usedPins.has(pin)) {
                 const previousUsage = usedPins.get(pin);
+                const pinName = pinStr.startsWith('A') ? pinStr : `D${pin}`;
+                let message;
+                
+                if (previousUsage.func) {
+                    // Conflict with Wire/SPI
+                    message = `Pin ${pinName} (pin ${pin}) conflicts with ${previousUsage.func} which uses this pin for ${previousUsage.mode}`;
+                } else {
+                    message = `Pin ${pinName} is already configured as ${previousUsage.mode} at line ${previousUsage.line + 1}`;
+                }
+                
                 diagnostics.push({
-                    severity: DiagnosticSeverity.Warning,
-                    range: this.getRange(document, line, match.index, match[0].length),
-                    message: `Pin ${pin} is already configured as ${previousUsage.mode} at line ${previousUsage.line + 1}`,
+                    severity: DiagnosticSeverity.Error,
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + match[0].length }
+                    },
+                    message,
                     source: 'Sentinel',
                     code: 'pin-conflict'
                 });
             }
             
-            // Validate mode for pin capabilities
-            if (mode === 'ANALOG' && !this.hardwareDB.isPinCapable(pin, 'analog')) {
+            // Validate mode for pin capabilities (only if board info available)
+            if (board && mode === 'ANALOG' && !this.hardwareDB.isPinCapable(pin, 'analog')) {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Error,
-                    range: this.getRange(document, line, match.index, match[0].length),
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + match[0].length }
+                    },
                     message: `Pin ${pin} does not support analog input. Analog pins: ${board.pins.analog?.join(', ') || 'None'}`,
                     source: 'Sentinel',
                     code: 'invalid-pin-mode'
@@ -127,19 +157,22 @@ class EmbeddedDiagnosticProvider {
             }
             
             // Store pin usage
-            usedPins.set(pin, { mode, line });
+            usedPins.set(pin, { mode, line: pos.line });
         }
         
         // Check for digital operations on analog pins
         const digitalWritePattern = /digitalWrite\s*\(\s*(\d+)\s*,/g;
         while ((match = digitalWritePattern.exec(text)) !== null) {
             const pin = parseInt(match[1]);
-            const line = text.substring(0, match.index).split('\n').length - 1;
+            const pos = document.positionAt(match.index);
             
             if (!usedPins.has(pin)) {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Warning,
-                    range: this.getRange(document, line, match.index, match[0].length),
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + match[0].length }
+                    },
                     message: `Pin ${pin} used without pinMode() configuration. Add pinMode(${pin}, OUTPUT) in setup()`,
                     source: 'Sentinel',
                     code: 'missing-pin-mode'
@@ -147,10 +180,34 @@ class EmbeddedDiagnosticProvider {
             } else if (usedPins.get(pin).mode === 'INPUT') {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Warning,
-                    range: this.getRange(document, line, match.index, match[0].length),
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + match[0].length }
+                    },
                     message: `Writing to pin ${pin} configured as INPUT. Consider changing to OUTPUT mode`,
                     source: 'Sentinel',
                     code: 'write-to-input-pin'
+                });
+            }
+        }
+        
+        // Check for attachInterrupt conflicts
+        const attachInterruptPattern = /attachInterrupt\s*\(\s*digitalPinToInterrupt\s*\(\s*(\d+)\s*\)/g;
+        while ((match = attachInterruptPattern.exec(text)) !== null) {
+            const pin = parseInt(match[1]);
+            const pos = document.positionAt(match.index);
+            
+            if (usedPins.has(pin)) {
+                const usage = usedPins.get(pin);
+                diagnostics.push({
+                    severity: DiagnosticSeverity.Error,
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + match[0].length }
+                    },
+                    message: `Pin ${pin} conflict: already configured as ${usage.mode} at line ${usage.line + 1}. Cannot use for both interrupt and ${usage.mode}`,
+                    source: 'Sentinel',
+                    code: 'pin-conflict-interrupt'
                 });
             }
         }
@@ -259,9 +316,7 @@ class EmbeddedDiagnosticProvider {
     }
     
     async validateI2CUsage(text, document, diagnostics) {
-        const i2cProtocol = this.hardwareDB.getProtocol('i2c');
-        if (!i2cProtocol) return;
-        
+        // Always validate I2C addresses regardless of hardware DB
         // Find I2C address usage
         const addressPattern = /(?:beginTransmission|requestFrom)\s*\(\s*0x([0-9A-Fa-f]+)/g;
         let match;
@@ -273,22 +328,7 @@ class EmbeddedDiagnosticProvider {
             const addressIndex = match.index + match[0].indexOf('0x' + match[1]);
             const pos = document.positionAt(addressIndex);
             
-            // Validate address range
-            if (address < 8 || address > 119) {
-                diagnostics.push({
-                    severity: DiagnosticSeverity.Error,
-                    range: {
-                        start: { line: pos.line, character: pos.character },
-                        end: { line: pos.line, character: pos.character + ('0x' + match[1]).length }
-                    },
-                    message: `I2C address 0x${address.toString(16).toUpperCase()} is outside valid range (0x08-0x77)`,
-                    source: 'Sentinel',
-                    code: 'invalid-i2c-address'
-                });
-                continue;
-            }
-            
-            // Check for reserved addresses (0x00-0x07 and 0x78-0x7F)
+            // Check for reserved addresses FIRST (0x00-0x07 and 0x78-0x7F)
             if (address >= 0x00 && address <= 0x07) {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Error,
@@ -316,29 +356,33 @@ class EmbeddedDiagnosticProvider {
                 continue;
             }
             
+            // Then check if completely out of range (> 0x7F)
+            if (address > 0x7F) {
+                diagnostics.push({
+                    severity: DiagnosticSeverity.Error,
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + ('0x' + match[1]).length }
+                    },
+                    message: `I2C address 0x${address.toString(16).toUpperCase()} is outside valid range (0x00-0x7F). Use 7-bit addresses only (0x08-0x77)`,
+                    source: 'Sentinel',
+                    code: 'invalid-i2c-address'
+                });
+                continue;
+            }
+            
             // Check for address conflicts
             if (usedAddresses.has(address)) {
                 diagnostics.push({
                     severity: DiagnosticSeverity.Information,
-                    range: this.getRange(document, line, match.index, match[0].length),
+                    range: {
+                        start: { line: pos.line, character: pos.character },
+                        end: { line: pos.line, character: pos.character + ('0x' + match[1]).length }
+                    },
                     message: `I2C address 0x${address.toString(16).toUpperCase()} is used multiple times. Ensure this is intentional`,
                     source: 'Sentinel',
                     code: 'duplicate-i2c-address'
                 });
-            }
-            
-            // Suggest known devices for common addresses
-            if (i2cProtocol.commonAddresses) {
-                const knownDevice = i2cProtocol.commonAddresses[`0x${address.toString(16)}`];
-                if (knownDevice) {
-                    diagnostics.push({
-                        severity: DiagnosticSeverity.Information,
-                        range: this.getRange(document, line, match.index, match[0].length),
-                        message: `I2C address 0x${address.toString(16).toUpperCase()} commonly used by: ${knownDevice}`,
-                        source: 'Sentinel',
-                        code: 'i2c-device-hint'
-                    });
-                }
             }
             
             usedAddresses.add(address);
