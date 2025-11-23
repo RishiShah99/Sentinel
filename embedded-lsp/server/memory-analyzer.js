@@ -12,6 +12,8 @@
  * - Stack depth estimation
  */
 
+const CommentStripper = require('./comment-stripper');
+
 class MemoryAnalyzer {
     constructor() {
         // Type sizes for Arduino (AVR architecture)
@@ -83,7 +85,7 @@ class MemoryAnalyzer {
             limits: limits
         };
 
-        // Track global variables
+        // Track global variables (will check for comments internally)
         this.analyzeGlobalVariables(text, analysis);
 
         // Track string literals in Flash

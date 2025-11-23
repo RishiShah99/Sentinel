@@ -9,6 +9,7 @@
  */
 
 const { Diagnostic, DiagnosticSeverity } = require('vscode-languageserver/node');
+const CommentStripper = require('./comment-stripper');
 
 class EmbeddedDiagnosticProvider {
     constructor(hardwareDB) {
@@ -21,6 +22,7 @@ class EmbeddedDiagnosticProvider {
         
         try {
             // Perform various embedded-specific validations
+            // Pass text directly - each validator will check for comments internally
             const validations = await Promise.all([
                 this.validatePinUsage(text, document).catch(e => { console.error('Pin validation error:', e); return []; }),
                 this.validateStackUsage(text, document).catch(e => { console.error('Stack validation error:', e); return []; }),
@@ -88,14 +90,21 @@ class EmbeddedDiagnosticProvider {
         const usedPins = new Map(); // Track pin configurations
         const attachInterruptPins = new Set(); // Track interrupt pins
         
-        // Check for Wire.begin() usage (A4/A5 on Uno)
-        const usesWire = text.includes('Wire.begin');
-        if (usesWire) {
-            usedPins.set(18, { mode: 'I2C_SDA', line: -1, func: 'Wire.begin()' });
-            usedPins.set(19, { mode: 'I2C_SCL', line: -1, func: 'Wire.begin()' });
+        // Check for Wire.begin() usage (A4/A5 on Uno) - skip if in comment
+        if (text.includes('Wire.begin')) {
+            const wireMatch = text.match(/Wire\.begin/);
+            if (wireMatch && !CommentStripper.isInComment(text, text.indexOf(wireMatch[0]))) {
+                usedPins.set(18, { mode: 'I2C_SDA', line: -1, func: 'Wire.begin()' });
+                usedPins.set(19, { mode: 'I2C_SCL', line: -1, func: 'Wire.begin()' });
+            }
         }
         
         while ((match = pinUsagePattern.exec(text)) !== null) {
+            // Skip if this match is inside a comment
+            if (CommentStripper.isInComment(text, match.index)) {
+                continue;
+            }
+            
             const pinStr = match[1];
             // Convert A0-A7 to numeric (A0=14, A1=15, etc.)
             const pin = pinStr.startsWith('A') ? 14 + parseInt(pinStr.substring(1)) : parseInt(pinStr);
@@ -163,6 +172,11 @@ class EmbeddedDiagnosticProvider {
         // Check for digital operations on analog pins
         const digitalWritePattern = /digitalWrite\s*\(\s*(\d+)\s*,/g;
         while ((match = digitalWritePattern.exec(text)) !== null) {
+            // Skip if in comment
+            if (CommentStripper.isInComment(text, match.index)) {
+                continue;
+            }
+            
             const pin = parseInt(match[1]);
             const pos = document.positionAt(match.index);
             
@@ -194,6 +208,11 @@ class EmbeddedDiagnosticProvider {
         // Check for attachInterrupt conflicts
         const attachInterruptPattern = /attachInterrupt\s*\(\s*digitalPinToInterrupt\s*\(\s*(\d+)\s*\)/g;
         while ((match = attachInterruptPattern.exec(text)) !== null) {
+            // Skip if in comment
+            if (CommentStripper.isInComment(text, match.index)) {
+                continue;
+            }
+            
             const pin = parseInt(match[1]);
             const pos = document.positionAt(match.index);
             
@@ -324,8 +343,15 @@ class EmbeddedDiagnosticProvider {
         const usedAddresses = new Set();
         
         while ((match = addressPattern.exec(text)) !== null) {
+            // Skip if in comment
+            if (CommentStripper.isInComment(text, match.index)) {
+                continue;
+            }
+            
             const address = parseInt(match[1], 16);
-            const addressIndex = match.index + match[0].indexOf('0x' + match[1]);
+            // Calculate position of the hex address within the match
+            const hexStart = match[0].indexOf('0x' + match[1]);
+            const addressIndex = match.index + hexStart;
             const pos = document.positionAt(addressIndex);
             
             // Check for reserved addresses FIRST (0x00-0x07 and 0x78-0x7F)

@@ -3,6 +3,8 @@
  * Tracks all pin usage across the codebase and detects conflicts
  */
 
+const CommentStripper = require('./comment-stripper');
+
 class PinTracker {
     constructor() {
         this.pinMap = new Map(); // pin number -> array of usages
@@ -12,7 +14,9 @@ class PinTracker {
      * Analyze document and extract all pin usages
      */
     analyzePinUsage(document) {
-        const text = document.getText();
+        const originalText = document.getText();
+        // Strip comments to avoid tracking commented-out pins
+        const text = CommentStripper.strip(originalText);
         const usages = [];
 
         // Track pinMode() calls

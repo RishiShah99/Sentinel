@@ -41,6 +41,7 @@ Sentinel implements over 50 hardware-specific validation rules that catch errors
 #### Pin Conflict Detection
 - Real-time tracking of all pin assignments (digital, analog, PWM, I2C, SPI, Serial)
 - Conflict warnings for overlapping pin usage
+- **Intelligent comment handling** - Commented-out code is automatically ignored during analysis
 - ESP32 strapping pin warnings (GPIO0, GPIO2, GPIO12, GPIO15)
 - Boot mode interference detection
 - Arduino PWM pin validation (pins 3, 5, 6, 9, 10, 11 on Uno)
