@@ -264,7 +264,3 @@ Planned features for upcoming releases:
 ## Contributing
 
 Contributions are welcome. Please open an issue or pull request for bugs, features, or improvements.
-
-## Author
-
-Rishi Shah
