@@ -92,6 +92,35 @@ Hardware-aware code completion and suggestions.
 - Library function signatures with hardware context
 - Board-aware syntax validation
 
+## User Interface
+
+### Sidebar Panel
+Sentinel provides a dedicated sidebar panel with all diagnostic information:
+- **Live Memory Estimate** - Real-time RAM usage with color-coded warnings
+- **Post-Build Memory** - Flash and RAM bars after compilation
+- **Pin Usage Map** - Visual representation of all pin assignments with conflict detection
+- **Top Global Variables** - Lists largest memory consumers
+- **Build & Deploy** - Quick access buttons for building and uploading
+- **Quick Actions** - Board selection, port selection, and serial monitor
+
+### Status Bar Integration
+- **Live RAM Display** - Always-visible RAM percentage in status bar
+- **Board Selector** - Click to choose between Arduino Uno and ESP32
+- **Port Selector** - Quick port selection for uploading
+- **Flash Button** - One-click upload to device
+
+### Editor Title Actions
+- **Build Project** - Compile current sketch with arduino-cli
+- **Flash Device** - Upload compiled binary to selected board
+
+### Commands
+All features accessible via Command Palette (Ctrl+Shift+P):
+- `Sentinel: Build Project` - Compile the current sketch
+- `Sentinel: Flash Device` - Upload to connected board
+- `Sentinel: Select Board` - Choose target board (Uno/ESP32)
+- `Sentinel: Select Port` - Choose serial port
+- `Sentinel: Open Serial Monitor` - View serial output in terminal
+
 ## Installation
 
 ### From Source
