@@ -1,0 +1,21 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shield shape representing protection/watchguard -->
+  <path d="M16 3L7 7V14C7 20 11 25 16 29C21 25 25 20 25 14V7L16 3Z" 
+        fill="none" 
+        stroke="#8B9EB7" 
+        stroke-width="1.8" 
+        stroke-linejoin="round"/>
+  
+  <!-- Inner circuit pattern -->
+  <circle cx="16" cy="14" r="2.5" fill="#8B9EB7" opacity="0.9"/>
+  <line x1="16" y1="11.5" x2="16" y2="8" stroke="#8B9EB7" stroke-width="1.5" opacity="0.7"/>
+  <line x1="13.5" y1="14" x2="10" y2="14" stroke="#8B9EB7" stroke-width="1.5" opacity="0.7"/>
+  <line x1="18.5" y1="14" x2="22" y2="14" stroke="#8B9EB7" stroke-width="1.5" opacity="0.7"/>
+  <line x1="16" y1="16.5" x2="16" y2="20" stroke="#8B9EB7" stroke-width="1.5" opacity="0.7"/>
+  
+  <!-- Small dots at connection points -->
+  <circle cx="16" cy="8" r="1" fill="#8B9EB7" opacity="0.6"/>
+  <circle cx="10" cy="14" r="1" fill="#8B9EB7" opacity="0.6"/>
+  <circle cx="22" cy="14" r="1" fill="#8B9EB7" opacity="0.6"/>
+  <circle cx="16" cy="20" r="1" fill="#8B9EB7" opacity="0.6"/>
+</svg>

@@ -1,0 +1,24 @@
+{
+  "name": "sentinel-embedded-lsp",
+  "version": "1.0.0",
+  "description": "Hardware-aware Language Server Protocol for Sentinel",
+  "main": "server/main.js",
+  "scripts": {
+    "start": "node server/main.js"
+  },
+  "dependencies": {
+    "vscode-languageserver": "^8.1.0",
+    "vscode-languageserver-textdocument": "^1.0.8",
+    "vscode-uri": "^3.0.7",
+    "glob": "^8.1.0",
+    "fs-extra": "^11.1.1"
+  },
+  "keywords": [
+    "embedded",
+    "arduino", 
+    "esp32",
+    "language-server"
+  ],
+  "author": "Sentinel",
+  "license": "MIT"
+}

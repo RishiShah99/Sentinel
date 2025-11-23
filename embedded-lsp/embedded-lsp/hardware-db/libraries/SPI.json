@@ -1,0 +1,410 @@
+{
+  "id": "spi-library",
+  "name": "SPI Library",
+  "description": "Serial Peripheral Interface communication library for Arduino",
+  "protocol": "SPI",
+  "include": "#include <SPI.h>",
+  "pins": {
+    "arduino-uno": {
+      "MOSI": 11,
+      "MISO": 12,
+      "SCK": 13,
+      "SS": 10,
+      "note": "SS can be any pin, but 10 must be OUTPUT to enable master mode"
+    },
+    "arduino-mega": {
+      "MOSI": 51,
+      "MISO": 50,
+      "SCK": 52,
+      "SS": 53
+    },
+    "esp32": {
+      "MOSI": 23,
+      "MISO": 19,
+      "SCK": 18,
+      "SS": 5,
+      "note": "VSPI pins. HSPI uses 13, 12, 14, 15"
+    }
+  },
+  "functions": {
+    "begin": {
+      "signature": "void SPI.begin()",
+      "description": "Initialize SPI bus",
+      "examples": [
+        "SPI.begin();"
+      ],
+      "notes": [
+        "Call once in setup()",
+        "Configures MOSI, MISO, SCK as needed",
+        "Does not configure SS/CS pins - user must do this",
+        "SS (pin 10 on Uno) must be OUTPUT even if not used"
+      ],
+      "warnings": [
+        "Pin 10 must be OUTPUT on Uno to enable master mode",
+        "Even if using different CS pin, pin 10 needs pinMode(10, OUTPUT)"
+      ]
+    },
+    "end": {
+      "signature": "void SPI.end()",
+      "description": "Disable SPI bus",
+      "examples": ["SPI.end();"],
+      "notes": ["Releases SPI pins for other uses"]
+    },
+    "beginTransaction": {
+      "signature": "void SPI.beginTransaction(SPISettings settings)",
+      "description": "Configure SPI bus for specific device",
+      "parameters": [
+        {
+          "name": "settings",
+          "type": "SPISettings",
+          "description": "SPI configuration object"
+        }
+      ],
+      "examples": [
+        "SPISettings mySettings(1000000, MSBFIRST, SPI_MODE0);",
+        "SPI.beginTransaction(mySettings);"
+      ],
+      "notes": [
+        "Must be called before transfer() operations",
+        "Prevents other code from interfering with SPI",
+        "Always pair with endTransaction()"
+      ],
+      "workflow": [
+        "1. Call beginTransaction()",
+        "2. Assert CS pin (digitalWrite LOW)",
+        "3. Perform transfer() operations",
+        "4. Deassert CS pin (digitalWrite HIGH)",
+        "5. Call endTransaction()"
+      ]
+    },
+    "endTransaction": {
+      "signature": "void SPI.endTransaction()",
+      "description": "Release SPI bus",
+      "examples": ["SPI.endTransaction();"],
+      "notes": [
+        "Must be called after beginTransaction()",
+        "Allows other code to use SPI",
+        "Call AFTER deasserting CS pin"
+      ]
+    },
+    "transfer": {
+      "signature": "uint8_t SPI.transfer(uint8_t data)",
+      "description": "Transfer one byte (send and receive simultaneously)",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "uint8_t",
+          "description": "Byte to send"
+        }
+      ],
+      "returns": "uint8_t (byte received)",
+      "examples": [
+        "uint8_t received = SPI.transfer(0xAB);",
+        "SPI.transfer(0x00);  // Send dummy byte to read"
+      ],
+      "notes": [
+        "SPI is full duplex - sends and receives simultaneously",
+        "Send 0x00 if you only want to read data",
+        "Must be called between beginTransaction() and endTransaction()"
+      ]
+    },
+    "transfer16": {
+      "signature": "uint16_t SPI.transfer16(uint16_t data)",
+      "description": "Transfer two bytes as 16-bit value",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "uint16_t",
+          "description": "16-bit value to send"
+        }
+      ],
+      "returns": "uint16_t (16-bit value received)",
+      "examples": [
+        "uint16_t result = SPI.transfer16(0xABCD);"
+      ],
+      "notes": ["More efficient than two transfer() calls"]
+    },
+    "transferBuffer": {
+      "signature": "void SPI.transfer(void *buf, size_t count)",
+      "description": "Transfer multiple bytes (in-place)",
+      "parameters": [
+        {
+          "name": "buf",
+          "type": "void*",
+          "description": "Buffer to send/receive (overwritten with received data)"
+        },
+        {
+          "name": "count",
+          "type": "size_t",
+          "description": "Number of bytes to transfer"
+        }
+      ],
+      "examples": [
+        "uint8_t data[] = {0x01, 0x02, 0x03};",
+        "SPI.transfer(data, 3);  // data now contains received bytes"
+      ],
+      "notes": [
+        "Buffer contents replaced with received data",
+        "Much faster than multiple transfer() calls"
+      ]
+    },
+    "setBitOrder": {
+      "signature": "void SPI.setBitOrder(uint8_t bitOrder)",
+      "description": "Set bit order (deprecated, use SPISettings)",
+      "parameters": [
+        {
+          "name": "bitOrder",
+          "type": "uint8_t",
+          "description": "MSBFIRST or LSBFIRST"
+        }
+      ],
+      "examples": ["SPI.setBitOrder(MSBFIRST);"],
+      "notes": ["Use SPISettings in beginTransaction() instead"]
+    },
+    "setDataMode": {
+      "signature": "void SPI.setDataMode(uint8_t mode)",
+      "description": "Set SPI mode (deprecated, use SPISettings)",
+      "parameters": [
+        {
+          "name": "mode",
+          "type": "uint8_t",
+          "description": "SPI_MODE0, SPI_MODE1, SPI_MODE2, or SPI_MODE3"
+        }
+      ],
+      "examples": ["SPI.setDataMode(SPI_MODE0);"],
+      "notes": ["Use SPISettings in beginTransaction() instead"]
+    },
+    "setClockDivider": {
+      "signature": "void SPI.setClockDivider(uint8_t divider)",
+      "description": "Set clock speed (deprecated, use SPISettings)",
+      "parameters": [
+        {
+          "name": "divider",
+          "type": "uint8_t",
+          "description": "SPI_CLOCK_DIVx (2, 4, 8, 16, 32, 64, 128)"
+        }
+      ],
+      "examples": ["SPI.setClockDivider(SPI_CLOCK_DIV4);"],
+      "notes": ["Use SPISettings in beginTransaction() instead"]
+    }
+  },
+  "SPISettings": {
+    "signature": "SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode)",
+    "description": "Create SPI configuration object",
+    "parameters": [
+      {
+        "name": "clock",
+        "type": "uint32_t",
+        "description": "Maximum SPI clock speed in Hz"
+      },
+      {
+        "name": "bitOrder",
+        "type": "uint8_t",
+        "description": "MSBFIRST (most common) or LSBFIRST"
+      },
+      {
+        "name": "dataMode",
+        "type": "uint8_t",
+        "description": "SPI_MODE0, SPI_MODE1, SPI_MODE2, or SPI_MODE3"
+      }
+    ],
+    "examples": [
+      "SPISettings settingsSlow(250000, MSBFIRST, SPI_MODE0);",
+      "SPISettings settingsFast(8000000, MSBFIRST, SPI_MODE0);",
+      "SPISettings settingsSD(4000000, MSBFIRST, SPI_MODE0);"
+    ],
+    "clockSpeeds": {
+      "maximum": {
+        "arduino-uno": "8 MHz (half of 16MHz CPU clock)",
+        "esp32": "80 MHz"
+      },
+      "typical": [
+        "SD Card: 4-25 MHz",
+        "NRF24L01: 0-10 MHz",
+        "Ethernet W5500: 0-80 MHz",
+        "LCD Display: 10-30 MHz",
+        "Flash Memory: 20-100 MHz"
+      ],
+      "notes": [
+        "Start slow (1-4 MHz) then increase",
+        "Maximum depends on device, cable length, layout",
+        "Longer cables require slower speeds"
+      ]
+    },
+    "modes": {
+      "SPI_MODE0": {
+        "CPOL": 0,
+        "CPHA": 0,
+        "description": "Clock idle LOW, data sampled on leading edge (most common)"
+      },
+      "SPI_MODE1": {
+        "CPOL": 0,
+        "CPHA": 1,
+        "description": "Clock idle LOW, data sampled on trailing edge"
+      },
+      "SPI_MODE2": {
+        "CPOL": 1,
+        "CPHA": 0,
+        "description": "Clock idle HIGH, data sampled on leading edge"
+      },
+      "SPI_MODE3": {
+        "CPOL": 1,
+        "CPHA": 1,
+        "description": "Clock idle HIGH, data sampled on trailing edge"
+      }
+    },
+    "bitOrder": {
+      "MSBFIRST": "Most Significant Bit first (default, most common)",
+      "LSBFIRST": "Least Significant Bit first (rare)"
+    }
+  },
+  "commonPatterns": {
+    "basicCommunication": {
+      "description": "Basic SPI read/write pattern",
+      "code": [
+        "const int CS_PIN = 10;",
+        "pinMode(CS_PIN, OUTPUT);",
+        "digitalWrite(CS_PIN, HIGH);",
+        "",
+        "SPI.begin();",
+        "SPISettings settings(1000000, MSBFIRST, SPI_MODE0);",
+        "",
+        "// Transfer data",
+        "SPI.beginTransaction(settings);",
+        "digitalWrite(CS_PIN, LOW);",
+        "uint8_t response = SPI.transfer(0xAB);",
+        "digitalWrite(CS_PIN, HIGH);",
+        "SPI.endTransaction();"
+      ]
+    },
+    "multipleDevices": {
+      "description": "Managing multiple SPI devices with different CS pins",
+      "code": [
+        "const int CS1 = 10, CS2 = 9;",
+        "SPISettings settings1(2000000, MSBFIRST, SPI_MODE0);",
+        "SPISettings settings2(4000000, MSBFIRST, SPI_MODE1);",
+        "",
+        "// Device 1",
+        "SPI.beginTransaction(settings1);",
+        "digitalWrite(CS1, LOW);",
+        "SPI.transfer(0x01);",
+        "digitalWrite(CS1, HIGH);",
+        "SPI.endTransaction();",
+        "",
+        "// Device 2",
+        "SPI.beginTransaction(settings2);",
+        "digitalWrite(CS2, LOW);",
+        "SPI.transfer(0x02);",
+        "digitalWrite(CS2, HIGH);",
+        "SPI.endTransaction();"
+      ],
+      "notes": [
+        "Each device can have different settings",
+        "Always deassert CS before changing devices",
+        "Only one device should have CS LOW at a time"
+      ]
+    },
+    "readRegister": {
+      "description": "Read from device register",
+      "code": [
+        "uint8_t readRegister(uint8_t address) {",
+        "  SPI.beginTransaction(settings);",
+        "  digitalWrite(CS_PIN, LOW);",
+        "  SPI.transfer(0x80 | address);  // Set read bit",
+        "  uint8_t value = SPI.transfer(0x00);  // Dummy byte",
+        "  digitalWrite(CS_PIN, HIGH);",
+        "  SPI.endTransaction();",
+        "  return value;",
+        "}"
+      ]
+    },
+    "writeRegister": {
+      "description": "Write to device register",
+      "code": [
+        "void writeRegister(uint8_t address, uint8_t value) {",
+        "  SPI.beginTransaction(settings);",
+        "  digitalWrite(CS_PIN, LOW);",
+        "  SPI.transfer(address);  // Write bit not set",
+        "  SPI.transfer(value);",
+        "  digitalWrite(CS_PIN, HIGH);",
+        "  SPI.endTransaction();",
+        "}"
+      ]
+    }
+  },
+  "bestPractices": {
+    "csManagement": {
+      "problem": "Forgetting to manage CS pin properly",
+      "solution": "Always control CS manually with digitalWrite",
+      "rules": [
+        "Initialize CS pin as OUTPUT",
+        "Keep CS HIGH when idle",
+        "Assert LOW before transfer, deassert HIGH after",
+        "Only one device CS LOW at a time"
+      ]
+    },
+    "transactionUsage": {
+      "problem": "SPI settings conflict between multiple devices",
+      "solution": "Always use beginTransaction() / endTransaction()",
+      "benefits": [
+        "Prevents conflicts between devices",
+        "Thread-safe on some platforms",
+        "Disables interrupts automatically if needed"
+      ]
+    },
+    "startSlow": {
+      "problem": "High speed SPI fails due to layout/cable issues",
+      "solution": "Start with slow speed, increase gradually",
+      "example": "Start at 250kHz, increase to 1MHz, then 4MHz, etc."
+    },
+    "pin10Output": {
+      "problem": "SPI doesn't work even though code looks correct",
+      "solution": "Ensure pin 10 is OUTPUT on Arduino Uno/Nano",
+      "code": "pinMode(10, OUTPUT);  // Required even if using different CS pin"
+    }
+  },
+  "troubleshooting": {
+    "noResponse": {
+      "symptoms": "Device not responding, always returns 0xFF or 0x00",
+      "solutions": [
+        "Check wiring (MOSI, MISO, SCK, CS, GND, VCC)",
+        "Verify CS pin is correct and configured as OUTPUT",
+        "Ensure pin 10 is OUTPUT (Uno/Nano)",
+        "Check SPI mode matches device datasheet",
+        "Reduce clock speed",
+        "Verify device is powered and enabled"
+      ]
+    },
+    "corruptedData": {
+      "symptoms": "Occasional wrong values, inconsistent reads",
+      "solutions": [
+        "Reduce SPI clock speed",
+        "Shorten cable connections",
+        "Add bypass capacitors near device VCC/GND",
+        "Check for loose connections",
+        "Ensure proper grounding",
+        "Check SPI mode configuration"
+      ]
+    },
+    "worksSlowly": {
+      "symptoms": "Works at low speed but fails at high speed",
+      "solutions": [
+        "Reduce cable length (<10cm for high speed)",
+        "Use twisted pair or shielded cables",
+        "Add series resistors on MOSI/SCK (22-47Ω)",
+        "Improve PCB layout (short traces, ground plane)",
+        "Check device maximum speed rating"
+      ]
+    }
+  },
+  "voltageConsiderations": {
+    "arduino5V": "Uses 5V logic - may damage 3.3V devices",
+    "esp32_3V3": "Uses 3.3V logic - generally safe for 5V devices",
+    "levelShifting": "Use level shifter or voltage divider when connecting 5V to 3.3V",
+    "notes": [
+      "Most modern SPI devices are 3.3V",
+      "Check device datasheet for voltage tolerance",
+      "Some 5V-tolerant 3.3V devices exist"
+    ]
+  }
+}

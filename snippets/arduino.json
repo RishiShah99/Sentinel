@@ -1,0 +1,110 @@
+{
+  "Arduino Setup/Loop": {
+    "prefix": "setup",
+    "body": [
+      "void setup() {",
+      "  Serial.begin(${1:115200});",
+      "  $2",
+      "}",
+      "",
+      "void loop() {",
+      "  $3",
+      "}"
+    ],
+    "description": "Arduino setup and loop template"
+  },
+  "I2C Scanner": {
+    "prefix": "i2cscan",
+    "body": [
+      "#include <Wire.h>",
+      "",
+      "void setup() {",
+      "  Serial.begin(115200);",
+      "  Wire.begin();",
+      "  Serial.println(\"I2C Scanner\");",
+      "}",
+      "",
+      "void loop() {",
+      "  byte error, address;",
+      "  int nDevices = 0;",
+      "  ",
+      "  Serial.println(\"Scanning...\");",
+      "  for(address = 1; address < 127; address++) {",
+      "    Wire.beginTransmission(address);",
+      "    error = Wire.endTransmission();",
+      "    ",
+      "    if (error == 0) {",
+      "      Serial.print(\"Device found at 0x\");",
+      "      if (address < 16) Serial.print(\"0\");",
+      "      Serial.println(address, HEX);",
+      "      nDevices++;",
+      "    }",
+      "  }",
+      "  ",
+      "  if (nDevices == 0)",
+      "    Serial.println(\"No I2C devices found\");",
+      "  else",
+      "    Serial.println(\"Done\");",
+      "    ",
+      "  delay(5000);",
+      "}"
+    ],
+    "description": "I2C device scanner"
+  },
+  "ESP32 WiFi Setup": {
+    "prefix": "wifisetup",
+    "body": [
+      "#include <WiFi.h>",
+      "",
+      "const char* ssid = \"${1:YOUR_SSID}\";",
+      "const char* password = \"${2:YOUR_PASSWORD}\";",
+      "",
+      "void setup() {",
+      "  Serial.begin(115200);",
+      "  ",
+      "  WiFi.begin(ssid, password);",
+      "  Serial.print(\"Connecting to WiFi\");",
+      "  ",
+      "  while (WiFi.status() != WL_CONNECTED) {",
+      "    delay(500);",
+      "    Serial.print(\".\");",
+      "  }",
+      "  ",
+      "  Serial.println(\"\");",
+      "  Serial.println(\"WiFi connected\");",
+      "  Serial.print(\"IP address: \");",
+      "  Serial.println(WiFi.localIP());",
+      "}",
+      "",
+      "void loop() {",
+      "  $3",
+      "}"
+    ],
+    "description": "ESP32 WiFi connection template"
+  },
+  "Serial Print Debug": {
+    "prefix": "debug",
+    "body": [
+      "Serial.print(\"${1:Variable}: \");",
+      "Serial.println(${2:variable});"
+    ],
+    "description": "Debug print statement"
+  },
+  "pinMode Setup": {
+    "prefix": "pin",
+    "body": [
+      "pinMode(${1:pin}, ${2|OUTPUT,INPUT,INPUT_PULLUP|});"
+    ],
+    "description": "Configure pin mode"
+  },
+  "Blink LED": {
+    "prefix": "blink",
+    "body": [
+      "digitalWrite(${1:LED_PIN}, HIGH);",
+      "delay(${2:1000});",
+      "digitalWrite(${1:LED_PIN}, LOW);",
+      "delay(${2:1000});"
+    ],
+    "description": "Blink LED pattern"
+  }
+}

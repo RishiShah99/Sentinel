@@ -1,0 +1,195 @@
+{
+  "name": "sentinel",
+  "displayName": "Sentinel - Hardware-Aware Embedded Diagnostics",
+  "description": "Intelligent diagnostics, memory analysis, and hardware-aware IntelliSense for Arduino and ESP32 development",
+  "version": "1.0.0",
+  "publisher": "RishiShah",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "arduino",
+    "esp32",
+    "embedded",
+    "iot",
+    "hardware"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RishiShah99/Sentinel"
+  },
+  "author": "Rishi Shah",
+  "license": "MIT",
+  "activationEvents": [
+    "onLanguage:cpp",
+    "onLanguage:c",
+    "workspaceContains:**/*.ino"
+  ],
+  "main": "./out/src/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "arduino",
+        "aliases": [
+          "Arduino",
+          "arduino"
+        ],
+        "extensions": [
+          ".ino"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "arduino",
+        "scopeName": "source.arduino",
+        "path": "./syntaxes/arduino.tmLanguage.json"
+      },
+      {
+        "language": "cpp",
+        "scopeName": "source.cpp.embedded",
+        "path": "./syntaxes/arduino.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.cpp": "cpp"
+        },
+        "injectTo": ["source.cpp"]
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sentinel-sidebar",
+          "title": "Sentinel",
+          "icon": "$(shield)"
+        }
+      ]
+    },
+    "views": {
+      "sentinel-sidebar": [
+        {
+          "id": "sentinel.deviceView",
+          "name": "Device Control",
+          "type": "webview"
+        }
+      ]
+    },
+    "snippets": [
+      {
+        "language": "arduino",
+        "path": "./snippets/arduino.json"
+      },
+      {
+        "language": "cpp",
+        "path": "./snippets/arduino.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "sentinel.build",
+        "title": "Build",
+        "category": "Sentinel",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "sentinel.flash",
+        "title": "Upload",
+        "category": "Sentinel",
+        "icon": "$(cloud-upload)"
+      },
+      {
+        "command": "sentinel.selectBoard",
+        "title": "Select Board",
+        "category": "Sentinel",
+        "icon": "$(circuit-board)"
+      },
+      {
+        "command": "sentinel.selectPort",
+        "title": "Select Port",
+        "category": "Sentinel",
+        "icon": "$(plug)"
+      },
+      {
+        "command": "sentinel.serialMonitor",
+        "title": "Serial Monitor",
+        "category": "Sentinel",
+        "icon": "$(terminal)"
+      },
+      {
+        "command": "sentinel.toggleFloatingRAM",
+        "title": "Toggle Floating RAM Monitor",
+        "category": "Sentinel",
+        "icon": "$(dashboard)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "sentinel.build",
+          "when": "resourceExtname == .ino || resourceExtname == .cpp",
+          "group": "navigation@1"
+        },
+        {
+          "command": "sentinel.flash",
+          "when": "resourceExtname == .ino || resourceExtname == .cpp",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "sentinel.build",
+          "when": "resourceExtname == .ino || resourceExtname == .cpp"
+        },
+        {
+          "command": "sentinel.flash",
+          "when": "resourceExtname == .ino || resourceExtname == .cpp"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Sentinel",
+      "properties": {
+        "sentinel.board": {
+          "type": "string",
+          "default": "arduino:avr:uno",
+          "description": "Selected board FQBN"
+        },
+        "sentinel.port": {
+          "type": "string",
+          "default": "",
+          "description": "Selected serial port"
+        },
+        "sentinel.baudRate": {
+          "type": "number",
+          "default": 115200,
+          "description": "Serial monitor baud rate"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@serialport/parser-readline": "^13.0.0",
+    "serialport": "^12.0.0",
+    "vscode-languageclient": "^9.0.1"
+  }
+}

@@ -1,0 +1,53 @@
+# Compiled output
+out/
+dist/
+*.vsix
+
+# Node modules
+node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# VS Code settings (keep launch and tasks for development)
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Build artifacts
+*.js.map
+
+# IDE files
+.idea/
+*.swp
+*.swo
+*~
+
+# Package manager locks (keep package-lock.json)
+# yarn.lock
+# pnpm-lock.yaml

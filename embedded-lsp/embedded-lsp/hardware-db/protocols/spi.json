@@ -1,0 +1,150 @@
+{
+  "id": "spi",
+  "name": "SPI (Serial Peripheral Interface)",
+  "description": "Four-wire synchronous serial communication protocol",
+  "pins": ["MOSI", "MISO", "SCK", "SS"],
+  "speed": {
+    "typical": 8000000,
+    "max": 20000000,
+    "unit": "Hz"
+  },
+  "modes": {
+    "0": {
+      "CPOL": 0,
+      "CPHA": 0,
+      "description": "Clock idle low, data sampled on rising edge"
+    },
+    "1": {
+      "CPOL": 0,
+      "CPHA": 1,
+      "description": "Clock idle low, data sampled on falling edge"
+    },
+    "2": {
+      "CPOL": 1,
+      "CPHA": 0,
+      "description": "Clock idle high, data sampled on falling edge"
+    },
+    "3": {
+      "CPOL": 1,
+      "CPHA": 1,
+      "description": "Clock idle high, data sampled on rising edge"
+    }
+  },
+  "commonDevices": {
+    "SD Card": {
+      "mode": 0,
+      "maxSpeed": 25000000,
+      "csActive": "low"
+    },
+    "W5500 Ethernet": {
+      "mode": 0,
+      "maxSpeed": 80000000,
+      "csActive": "low"
+    },
+    "NRF24L01 Radio": {
+      "mode": 0,
+      "maxSpeed": 10000000,
+      "csActive": "low"
+    },
+    "MAX7219 LED Driver": {
+      "mode": 0,
+      "maxSpeed": 10000000,
+      "csActive": "low"
+    }
+  },
+  "functions": {
+    "SPI.begin": {
+      "description": "Initialize SPI as master",
+      "parameters": [],
+      "returns": "void",
+      "example": "SPI.begin();",
+      "notes": "Sets MOSI, SCK, SS as outputs"
+    },
+    "SPI.beginTransaction": {
+      "description": "Configure SPI for a specific device",
+      "parameters": [
+        {
+          "name": "settings",
+          "type": "SPISettings",
+          "description": "Speed, bit order, and data mode"
+        }
+      ],
+      "returns": "void",
+      "example": "SPI.beginTransaction(SPISettings(8000000, MSBFIRST, SPI_MODE0));"
+    },
+    "SPI.transfer": {
+      "description": "Transfer a byte (send and receive simultaneously)",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "uint8_t",
+          "description": "Byte to send"
+        }
+      ],
+      "returns": "uint8_t (received byte)",
+      "example": "uint8_t received = SPI.transfer(0x42);"
+    },
+    "SPI.endTransaction": {
+      "description": "End SPI transaction",
+      "parameters": [],
+      "returns": "void",
+      "example": "SPI.endTransaction();"
+    },
+    "SPI.end": {
+      "description": "Disable SPI",
+      "parameters": [],
+      "returns": "void",
+      "example": "SPI.end();"
+    }
+  },
+  "pinRequirements": {
+    "SS": {
+      "direction": "output",
+      "description": "Must be OUTPUT in master mode",
+      "warning": "If SS is INPUT, Arduino becomes SPI slave"
+    },
+    "MOSI": {
+      "direction": "output",
+      "description": "Master Out Slave In"
+    },
+    "MISO": {
+      "direction": "input",
+      "description": "Master In Slave Out"
+    },
+    "SCK": {
+      "direction": "output",
+      "description": "Serial Clock"
+    }
+  },
+  "commonErrors": {
+    "ssNotOutput": {
+      "code": "E_SPI_SS",
+      "message": "SS pin must be configured as OUTPUT for SPI master mode",
+      "severity": "error",
+      "fix": "Add pinMode(SS, OUTPUT);"
+    },
+    "conflictWithI2C": {
+      "code": "W_SPI_I2C_CONFLICT",
+      "message": "SPI pins overlap with I2C on some boards",
+      "severity": "warning"
+    },
+    "speedTooHigh": {
+      "code": "W_SPI_SPEED",
+      "message": "SPI speed exceeds device maximum",
+      "severity": "warning"
+    }
+  },
+  "bestPractices": [
+    "Always use beginTransaction() before transfers",
+    "Pull CS/SS HIGH before SPI.begin()",
+    "Use shortest possible wires for high-speed SPI",
+    "Add small capacitors near device VCC pins",
+    "Test with lower speeds first (1-2 MHz)",
+    "Remember SPI is full-duplex (always sends and receives)"
+  ],
+  "multipleDevices": {
+    "description": "Multiple SPI devices share MOSI, MISO, SCK",
+    "csManagement": "Each device needs separate CS/SS pin",
+    "example": "digitalWrite(CS1, LOW); SPI.transfer(data); digitalWrite(CS1, HIGH);"
+  }
+}

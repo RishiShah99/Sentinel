@@ -1,0 +1,502 @@
+{
+  "id": "esp32-wifi",
+  "name": "WiFi Library (ESP32)",
+  "description": "WiFi functionality for ESP32",
+  "board": "ESP32",
+  "include": "#include <WiFi.h>",
+  "features": [
+    "Station mode (connect to AP)",
+    "Access Point mode (create hotspot)",
+    "Station + AP mode (dual mode)",
+    "WiFi scanning",
+    "WPA/WPA2/WPA3 security",
+    "Static IP configuration",
+    "MAC address configuration"
+  ],
+  "functions": {
+    "begin": {
+      "signatures": [
+        {
+          "signature": "void WiFi.begin(const char* ssid, const char* password)",
+          "description": "Connect to WiFi network (Station mode)",
+          "parameters": [
+            {
+              "name": "ssid",
+              "type": "const char*",
+              "description": "Network SSID (name)"
+            },
+            {
+              "name": "password",
+              "type": "const char*",
+              "description": "Network password (NULL for open networks)"
+            }
+          ],
+          "examples": [
+            "WiFi.begin(\"MyNetwork\", \"password123\");",
+            "WiFi.begin(\"OpenNetwork\", NULL);"
+          ],
+          "notes": [
+            "Non-blocking - check status() or wait for connection",
+            "Automatically reconnects if connection lost"
+          ]
+        }
+      ]
+    },
+    "status": {
+      "signature": "wl_status_t WiFi.status()",
+      "description": "Get current WiFi connection status",
+      "returns": "wl_status_t",
+      "returnValues": [
+        {"value": "WL_IDLE_STATUS", "meaning": "Idle, not attempting connection"},
+        {"value": "WL_NO_SSID_AVAIL", "meaning": "SSID not found"},
+        {"value": "WL_SCAN_COMPLETED", "meaning": "Scan completed"},
+        {"value": "WL_CONNECTED", "meaning": "Successfully connected"},
+        {"value": "WL_CONNECT_FAILED", "meaning": "Connection failed"},
+        {"value": "WL_CONNECTION_LOST", "meaning": "Connection lost"},
+        {"value": "WL_DISCONNECTED", "meaning": "Disconnected"}
+      ],
+      "examples": [
+        "if (WiFi.status() == WL_CONNECTED) { ... }",
+        "while (WiFi.status() != WL_CONNECTED) { delay(500); }"
+      ]
+    },
+    "connected": {
+      "signature": "bool WiFi.isConnected()",
+      "description": "Check if connected to WiFi",
+      "returns": "bool (true if connected)",
+      "examples": [
+        "if (WiFi.isConnected()) { ... }"
+      ]
+    },
+    "disconnect": {
+      "signature": "bool WiFi.disconnect(bool wifioff, bool eraseap)",
+      "description": "Disconnect from WiFi network",
+      "parameters": [
+        {
+          "name": "wifioff",
+          "type": "bool",
+          "description": "Turn off WiFi radio (default false)"
+        },
+        {
+          "name": "eraseap",
+          "type": "bool",
+          "description": "Erase stored credentials (default false)"
+        }
+      ],
+      "examples": [
+        "WiFi.disconnect();",
+        "WiFi.disconnect(true, true);  // Full disconnect and erase"
+      ]
+    },
+    "localIP": {
+      "signature": "IPAddress WiFi.localIP()",
+      "description": "Get assigned IP address",
+      "returns": "IPAddress",
+      "examples": [
+        "IPAddress ip = WiFi.localIP();",
+        "Serial.println(WiFi.localIP());"
+      ],
+      "notes": [
+        "Returns 0.0.0.0 if not connected",
+        "Can be printed directly to Serial"
+      ]
+    },
+    "macAddress": {
+      "signature": "String WiFi.macAddress()",
+      "description": "Get MAC address as string",
+      "returns": "String (format: AA:BB:CC:DD:EE:FF)",
+      "examples": [
+        "String mac = WiFi.macAddress();",
+        "Serial.println(WiFi.macAddress());"
+      ]
+    },
+    "RSSI": {
+      "signature": "int32_t WiFi.RSSI()",
+      "description": "Get signal strength (Received Signal Strength Indicator)",
+      "returns": "int32_t (dBm, negative value)",
+      "examples": [
+        "int32_t strength = WiFi.RSSI();",
+        "Serial.print(\"Signal: \");",
+        "Serial.print(WiFi.RSSI());",
+        "Serial.println(\" dBm\");"
+      ],
+      "notes": [
+        "Typical values: -30 (excellent) to -90 (poor)",
+        "-50 dBm is very good",
+        "-60 dBm is good",
+        "-70 dBm is fair",
+        "Below -80 dBm is weak"
+      ]
+    },
+    "SSID": {
+      "signature": "String WiFi.SSID()",
+      "description": "Get connected network SSID",
+      "returns": "String",
+      "examples": [
+        "String network = WiFi.SSID();"
+      ]
+    },
+    "scanNetworks": {
+      "signature": "int16_t WiFi.scanNetworks(bool async, bool show_hidden)",
+      "description": "Scan for available WiFi networks",
+      "parameters": [
+        {
+          "name": "async",
+          "type": "bool",
+          "description": "Asynchronous scan (default false)"
+        },
+        {
+          "name": "show_hidden",
+          "type": "bool",
+          "description": "Show hidden SSIDs (default false)"
+        }
+      ],
+      "returns": "int16_t (number of networks found)",
+      "examples": [
+        "int n = WiFi.scanNetworks();",
+        "for (int i = 0; i < n; i++) {",
+        "  Serial.print(WiFi.SSID(i));",
+        "  Serial.print(\" (\");",
+        "  Serial.print(WiFi.RSSI(i));",
+        "  Serial.println(\" dBm)\");",
+        "}"
+      ],
+      "notes": [
+        "Blocking by default (takes 1-3 seconds)",
+        "Use WiFi.SSID(i), WiFi.RSSI(i), WiFi.encryptionType(i) to get details"
+      ]
+    },
+    "setAutoReconnect": {
+      "signature": "bool WiFi.setAutoReconnect(bool autoReconnect)",
+      "description": "Enable/disable automatic reconnection",
+      "parameters": [
+        {
+          "name": "autoReconnect",
+          "type": "bool",
+          "description": "Enable auto-reconnect"
+        }
+      ],
+      "examples": [
+        "WiFi.setAutoReconnect(true);"
+      ],
+      "notes": [
+        "Enabled by default",
+        "Automatically reconnects if connection lost"
+      ]
+    },
+    "config": {
+      "signature": "bool WiFi.config(IPAddress local_ip, IPAddress gateway, IPAddress subnet, IPAddress dns1, IPAddress dns2)",
+      "description": "Configure static IP address",
+      "parameters": [
+        {
+          "name": "local_ip",
+          "type": "IPAddress",
+          "description": "Static IP address"
+        },
+        {
+          "name": "gateway",
+          "type": "IPAddress",
+          "description": "Gateway address"
+        },
+        {
+          "name": "subnet",
+          "type": "IPAddress",
+          "description": "Subnet mask"
+        },
+        {
+          "name": "dns1",
+          "type": "IPAddress",
+          "description": "Primary DNS (optional)"
+        },
+        {
+          "name": "dns2",
+          "type": "IPAddress",
+          "description": "Secondary DNS (optional)"
+        }
+      ],
+      "examples": [
+        "IPAddress local_ip(192, 168, 1, 100);",
+        "IPAddress gateway(192, 168, 1, 1);",
+        "IPAddress subnet(255, 255, 255, 0);",
+        "WiFi.config(local_ip, gateway, subnet);"
+      ],
+      "notes": [
+        "Call before WiFi.begin()",
+        "Disables DHCP"
+      ]
+    },
+    "mode": {
+      "signature": "bool WiFi.mode(wifi_mode_t mode)",
+      "description": "Set WiFi operating mode",
+      "parameters": [
+        {
+          "name": "mode",
+          "type": "wifi_mode_t",
+          "description": "WIFI_OFF, WIFI_STA, WIFI_AP, WIFI_AP_STA"
+        }
+      ],
+      "examples": [
+        "WiFi.mode(WIFI_STA);  // Station mode",
+        "WiFi.mode(WIFI_AP);   // Access Point mode",
+        "WiFi.mode(WIFI_AP_STA);  // Both modes"
+      ]
+    },
+    "softAP": {
+      "signature": "bool WiFi.softAP(const char* ssid, const char* password, int channel, int ssid_hidden, int max_connection)",
+      "description": "Create WiFi Access Point (hotspot)",
+      "parameters": [
+        {
+          "name": "ssid",
+          "type": "const char*",
+          "description": "AP SSID (max 32 chars)"
+        },
+        {
+          "name": "password",
+          "type": "const char*",
+          "description": "AP password (min 8 chars, NULL for open)"
+        },
+        {
+          "name": "channel",
+          "type": "int",
+          "description": "WiFi channel 1-13 (default 1)"
+        },
+        {
+          "name": "ssid_hidden",
+          "type": "int",
+          "description": "Hide SSID (0=visible, 1=hidden, default 0)"
+        },
+        {
+          "name": "max_connection",
+          "type": "int",
+          "description": "Max clients (1-4, default 4)"
+        }
+      ],
+      "examples": [
+        "WiFi.softAP(\"ESP32-AP\", \"password123\");",
+        "WiFi.softAP(\"MyHotspot\", \"12345678\", 6, 0, 4);"
+      ],
+      "notes": [
+        "Default IP is 192.168.4.1",
+        "Password must be 8+ characters for WPA2",
+        "Use NULL password for open network (not recommended)"
+      ]
+    },
+    "softAPIP": {
+      "signature": "IPAddress WiFi.softAPIP()",
+      "description": "Get Access Point IP address",
+      "returns": "IPAddress (default 192.168.4.1)",
+      "examples": [
+        "Serial.println(WiFi.softAPIP());"
+      ]
+    },
+    "softAPgetStationNum": {
+      "signature": "uint8_t WiFi.softAPgetStationNum()",
+      "description": "Get number of connected clients",
+      "returns": "uint8_t (0-4)",
+      "examples": [
+        "int clients = WiFi.softAPgetStationNum();",
+        "Serial.print(\"Connected clients: \");",
+        "Serial.println(clients);"
+      ]
+    }
+  },
+  "commonPatterns": {
+    "basicStationMode": {
+      "description": "Connect to WiFi network",
+      "code": [
+        "#include <WiFi.h>",
+        "",
+        "const char* ssid = \"YourNetworkName\";",
+        "const char* password = \"YourPassword\";",
+        "",
+        "void setup() {",
+        "  Serial.begin(115200);",
+        "  WiFi.begin(ssid, password);",
+        "  ",
+        "  Serial.print(\"Connecting to WiFi\");",
+        "  while (WiFi.status() != WL_CONNECTED) {",
+        "    delay(500);",
+        "    Serial.print(\".\");",
+        "  }",
+        "  ",
+        "  Serial.println(\"\");",
+        "  Serial.print(\"Connected! IP: \");",
+        "  Serial.println(WiFi.localIP());",
+        "}"
+      ]
+    },
+    "accessPointMode": {
+      "description": "Create WiFi hotspot",
+      "code": [
+        "#include <WiFi.h>",
+        "",
+        "const char* ap_ssid = \"ESP32-Hotspot\";",
+        "const char* ap_password = \"12345678\";",
+        "",
+        "void setup() {",
+        "  Serial.begin(115200);",
+        "  WiFi.softAP(ap_ssid, ap_password);",
+        "  ",
+        "  Serial.print(\"AP IP address: \");",
+        "  Serial.println(WiFi.softAPIP());",
+        "}"
+      ]
+    },
+    "wifiScanner": {
+      "description": "Scan and display available networks",
+      "code": [
+        "void scanNetworks() {",
+        "  Serial.println(\"Scanning networks...\");",
+        "  int n = WiFi.scanNetworks();",
+        "  ",
+        "  if (n == 0) {",
+        "    Serial.println(\"No networks found\");",
+        "  } else {",
+        "    Serial.print(n);",
+        "    Serial.println(\" networks found:\");",
+        "    for (int i = 0; i < n; i++) {",
+        "      Serial.print(i + 1);",
+        "      Serial.print(\": \");",
+        "      Serial.print(WiFi.SSID(i));",
+        "      Serial.print(\" (\");",
+        "      Serial.print(WiFi.RSSI(i));",
+        "      Serial.print(\" dBm) \");",
+        "      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? \"Open\" : \"Secure\");",
+        "    }",
+        "  }",
+        "}"
+      ]
+    },
+    "staticIP": {
+      "description": "Configure static IP address",
+      "code": [
+        "IPAddress local_ip(192, 168, 1, 100);",
+        "IPAddress gateway(192, 168, 1, 1);",
+        "IPAddress subnet(255, 255, 255, 0);",
+        "IPAddress dns1(8, 8, 8, 8);",
+        "",
+        "void setup() {",
+        "  WiFi.config(local_ip, gateway, subnet, dns1);",
+        "  WiFi.begin(ssid, password);",
+        "}"
+      ]
+    }
+  },
+  "bestPractices": {
+    "powerConsumption": {
+      "problem": "WiFi consumes significant power",
+      "solutions": [
+        "Use WiFi.disconnect(true) when not needed",
+        "Enable light sleep mode between transmissions",
+        "Use WiFi.setSleep(true) for automatic power saving",
+        "Batch data transmissions instead of frequent small sends"
+      ]
+    },
+    "connectionStability": {
+      "problem": "WiFi connection drops intermittently",
+      "solutions": [
+        "Enable auto-reconnect: WiFi.setAutoReconnect(true)",
+        "Monitor WiFi.status() and reconnect if needed",
+        "Ensure strong signal strength (> -70 dBm)",
+        "Avoid channel congestion - scan and choose best channel",
+        "Add external antenna for better range"
+      ]
+    },
+    "secureCredentials": {
+      "problem": "Hardcoded WiFi credentials in code",
+      "solution": "Store credentials in SPIFFS/preferences",
+      "example": "Use WiFiManager library for web-based configuration"
+    },
+    "timeouts": {
+      "problem": "Program hangs waiting for WiFi connection",
+      "solution": "Add timeout to connection loop",
+      "example": "unsigned long startAttemptTime = millis(); if (millis() - startAttemptTime > 30000) { /* timeout */ }"
+    }
+  },
+  "powerManagement": {
+    "setSleep": {
+      "signature": "bool WiFi.setSleep(bool enable)",
+      "description": "Enable WiFi sleep mode",
+      "notes": [
+        "Reduces power consumption",
+        "May increase latency",
+        "Automatically wakes for data transmission"
+      ]
+    },
+    "modemSleep": {
+      "description": "WiFi modem sleeps between beacons",
+      "powerSaving": "~30-70mA reduction",
+      "latency": "+100ms"
+    },
+    "lightSleep": {
+      "description": "CPU and WiFi sleep, wake on timer/interrupt",
+      "powerSaving": "~50-80mA reduction",
+      "latency": "+3ms"
+    }
+  },
+  "troubleshooting": {
+    "cannotConnect": {
+      "symptoms": "WiFi.status() returns WL_CONNECT_FAILED",
+      "solutions": [
+        "Verify SSID and password are correct",
+        "Check if network is 2.4GHz (ESP32 doesn't support 5GHz)",
+        "Ensure WiFi mode is WIFI_STA or WIFI_AP_STA",
+        "Move closer to router",
+        "Check if MAC filtering is enabled on router",
+        "Try different WiFi channel"
+      ]
+    },
+    "slowConnection": {
+      "symptoms": "Data transfer is very slow",
+      "solutions": [
+        "Check signal strength with WiFi.RSSI()",
+        "Reduce distance to access point",
+        "Change WiFi channel to avoid interference",
+        "Add external antenna",
+        "Check router configuration (QoS settings)"
+      ]
+    },
+    "frequentDisconnects": {
+      "symptoms": "Connection drops regularly",
+      "solutions": [
+        "Enable WiFi.setAutoReconnect(true)",
+        "Improve signal strength",
+        "Check router stability and logs",
+        "Disable WiFi sleep mode",
+        "Update ESP32 WiFi firmware"
+      ]
+    },
+    "brownout": {
+      "symptoms": "Brownout detector triggered during WiFi",
+      "solutions": [
+        "Use adequate power supply (500mA+ at 5V)",
+        "Add 100-470µF capacitor near ESP32",
+        "Reduce WiFi transmit power",
+        "Avoid using WiFi during high-current operations"
+      ]
+    }
+  },
+  "hardwareConsiderations": {
+    "antenna": {
+      "pcb": "Built-in PCB antenna on most dev boards",
+      "external": "U.FL connector for external antenna (better range)",
+      "note": "Some boards require resistor change to switch between antennas"
+    },
+    "powerRequirements": {
+      "idle": "~40mA",
+      "transmitting": "120-240mA (peaks)",
+      "receiving": "80-120mA",
+      "notes": [
+        "Requires stable 3.3V supply",
+        "USB power may be insufficient for long-range",
+        "Use dedicated regulator rated for 500mA+"
+      ]
+    },
+    "frequency": {
+      "supported": "2.4 GHz (802.11 b/g/n)",
+      "notSupported": "5 GHz",
+      "channels": "1-13 (region dependent)",
+      "note": "Ensure router broadcasts on 2.4GHz band"
+    }
+  }
+}

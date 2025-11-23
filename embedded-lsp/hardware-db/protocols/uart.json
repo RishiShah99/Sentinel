@@ -1,0 +1,329 @@
+{
+  "id": "uart",
+  "name": "UART/Serial Protocol",
+  "description": "Universal Asynchronous Receiver-Transmitter for serial communication",
+  "arduinoLibrary": "Serial (built-in)",
+  "pins": {
+    "arduino-uno": {
+      "RX": 0,
+      "TX": 1,
+      "note": "Serial uses pins 0 and 1, conflicts with USB communication during programming"
+    },
+    "esp32": {
+      "UART0": {"RX": 3, "TX": 1, "note": "Connected to USB, used for Serial Monitor"},
+      "UART1": {"RX": 9, "TX": 10, "note": "Not broken out on most dev boards"},
+      "UART2": {"RX": 16, "TX": 17, "note": "Available for custom serial communication"}
+    }
+  },
+  "baudRates": {
+    "common": [300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 38400, 57600, 115200],
+    "highSpeed": [230400, 460800, 921600, 1000000, 2000000],
+    "default": 9600,
+    "recommended": {
+      "debugging": 115200,
+      "gps": 9600,
+      "bluetooth": 9600,
+      "wifi": 115200,
+      "sensors": 9600
+    },
+    "notes": [
+      "Both devices must use same baud rate",
+      "Higher baud rates may have more errors over long cables",
+      "ESP32 can handle up to 2Mbps"
+    ]
+  },
+  "configuration": {
+    "dataBits": {
+      "values": [5, 6, 7, 8],
+      "default": 8,
+      "description": "Number of data bits per frame"
+    },
+    "parity": {
+      "values": ["NONE", "EVEN", "ODD"],
+      "default": "NONE",
+      "description": "Error checking bit"
+    },
+    "stopBits": {
+      "values": [1, 2],
+      "default": 1,
+      "description": "Number of stop bits"
+    },
+    "format": {
+      "8N1": "8 data bits, no parity, 1 stop bit (most common)",
+      "8E1": "8 data bits, even parity, 1 stop bit",
+      "7E1": "7 data bits, even parity, 1 stop bit",
+      "note": "Default is 8N1 - rarely needs changing"
+    }
+  },
+  "functions": {
+    "begin": {
+      "signature": "void Serial.begin(unsigned long baud, config)",
+      "description": "Initialize serial communication",
+      "parameters": [
+        {
+          "name": "baud",
+          "type": "unsigned long",
+          "description": "Baud rate (bits per second)"
+        },
+        {
+          "name": "config",
+          "type": "uint8_t",
+          "description": "Optional: SERIAL_8N1 (default), SERIAL_8E1, etc."
+        }
+      ],
+      "examples": [
+        "Serial.begin(9600);",
+        "Serial.begin(115200);",
+        "Serial.begin(9600, SERIAL_8N1);"
+      ],
+      "notes": [
+        "Call once in setup()",
+        "Wait 1-2 seconds after begin() for stability on some boards"
+      ]
+    },
+    "end": {
+      "signature": "void Serial.end(void)",
+      "description": "Disables serial communication",
+      "examples": ["Serial.end();"],
+      "notes": ["Frees RX/TX pins for digital I/O"]
+    },
+    "available": {
+      "signature": "int Serial.available(void)",
+      "description": "Returns number of bytes available to read",
+      "returns": "int (number of bytes)",
+      "examples": [
+        "if (Serial.available() > 0) { ... }",
+        "while (Serial.available()) { char c = Serial.read(); }"
+      ],
+      "notes": ["Returns 0 if no data available"]
+    },
+    "read": {
+      "signature": "int Serial.read(void)",
+      "description": "Read next byte from serial buffer",
+      "returns": "int (0-255) or -1 if no data",
+      "examples": [
+        "int incomingByte = Serial.read();",
+        "char c = Serial.read();"
+      ],
+      "notes": [
+        "Returns -1 if no data available",
+        "Buffer holds 64 bytes (Uno) or 256 bytes (ESP32)"
+      ]
+    },
+    "readBytes": {
+      "signature": "size_t Serial.readBytes(char *buffer, size_t length)",
+      "description": "Read multiple bytes into buffer",
+      "parameters": [
+        {
+          "name": "buffer",
+          "type": "char*",
+          "description": "Array to store bytes"
+        },
+        {
+          "name": "length",
+          "type": "size_t",
+          "description": "Number of bytes to read"
+        }
+      ],
+      "returns": "size_t (number of bytes read)",
+      "examples": [
+        "char buffer[10];",
+        "int bytesRead = Serial.readBytes(buffer, 10);"
+      ]
+    },
+    "readString": {
+      "signature": "String Serial.readString(void)",
+      "description": "Read all available data as String",
+      "returns": "String",
+      "examples": ["String data = Serial.readString();"],
+      "warnings": ["Waits for timeout (default 1000ms)", "Can fragment memory on Arduino Uno"]
+    },
+    "readStringUntil": {
+      "signature": "String Serial.readStringUntil(char terminator)",
+      "description": "Read data until terminator character",
+      "parameters": [
+        {
+          "name": "terminator",
+          "type": "char",
+          "description": "Character to stop at (e.g., '\\n')"
+        }
+      ],
+      "returns": "String",
+      "examples": [
+        "String line = Serial.readStringUntil('\\n');"
+      ]
+    },
+    "write": {
+      "signature": "size_t Serial.write(uint8_t val) / Serial.write(const char *str)",
+      "description": "Write raw bytes to serial",
+      "examples": [
+        "Serial.write(65);  // Sends 'A'",
+        "Serial.write(\"Hello\");"
+      ],
+      "notes": ["Sends bytes as-is, no formatting"]
+    },
+    "print": {
+      "signature": "size_t Serial.print(val, format)",
+      "description": "Print data to serial as human-readable text",
+      "parameters": [
+        {
+          "name": "val",
+          "type": "any",
+          "description": "Value to print"
+        },
+        {
+          "name": "format",
+          "type": "int",
+          "description": "Optional: DEC, HEX, OCT, BIN for numbers"
+        }
+      ],
+      "examples": [
+        "Serial.print(\"Temperature: \");",
+        "Serial.print(25);",
+        "Serial.print(255, HEX);  // Prints FF"
+      ]
+    },
+    "println": {
+      "signature": "size_t Serial.println(val, format)",
+      "description": "Print data followed by newline",
+      "examples": [
+        "Serial.println(\"Hello World\");",
+        "Serial.println(sensorValue);"
+      ],
+      "notes": ["Sends \\r\\n (carriage return + line feed)"]
+    },
+    "flush": {
+      "signature": "void Serial.flush(void)",
+      "description": "Wait for outgoing data to be transmitted",
+      "examples": ["Serial.flush();"],
+      "notes": ["Blocks until transmission complete"]
+    },
+    "setTimeout": {
+      "signature": "void Serial.setTimeout(unsigned long timeout)",
+      "description": "Set timeout for readString functions",
+      "parameters": [
+        {
+          "name": "timeout",
+          "type": "unsigned long",
+          "description": "Timeout in milliseconds"
+        }
+      ],
+      "examples": ["Serial.setTimeout(500);"],
+      "notes": ["Default is 1000ms"]
+    }
+  },
+  "multipleSerialPorts": {
+    "arduinoMega": {
+      "Serial": "USB (pins 0, 1)",
+      "Serial1": "pins 19 (RX), 18 (TX)",
+      "Serial2": "pins 17 (RX), 16 (TX)",
+      "Serial3": "pins 15 (RX), 14 (TX)"
+    },
+    "esp32": {
+      "Serial": "UART0 - USB",
+      "Serial1": "UART1 - configurable pins",
+      "Serial2": "UART2 - pins 16 (RX), 17 (TX)"
+    },
+    "softwareSerial": {
+      "description": "Software-based serial on any digital pins",
+      "library": "SoftwareSerial.h",
+      "limitations": [
+        "Lower baud rates only (up to 115200)",
+        "Cannot send and receive simultaneously",
+        "Conflicts with other libraries using interrupts"
+      ],
+      "example": "SoftwareSerial mySerial(10, 11); // RX, TX"
+    }
+  },
+  "commonDevices": [
+    {
+      "name": "GPS Module",
+      "baudRate": 9600,
+      "protocol": "NMEA sentences",
+      "example": "Parse GGA, RMC sentences"
+    },
+    {
+      "name": "Bluetooth Module (HC-05/HC-06)",
+      "baudRate": 9600,
+      "protocol": "AT commands",
+      "notes": "Can be reconfigured to different baud rates"
+    },
+    {
+      "name": "GSM Module",
+      "baudRate": 115200,
+      "protocol": "AT commands",
+      "notes": "Requires external power supply"
+    },
+    {
+      "name": "Serial LCD",
+      "baudRate": 9600,
+      "protocol": "Custom commands",
+      "notes": "One-way communication"
+    },
+    {
+      "name": "RFID Reader",
+      "baudRate": 9600,
+      "protocol": "Custom",
+      "notes": "Often sends card ID automatically"
+    }
+  ],
+  "bestPractices": {
+    "nonBlockingRead": {
+      "problem": "readString() blocks until timeout",
+      "solution": "Use available() and read() in loop",
+      "example": "while (Serial.available()) { char c = Serial.read(); /* process */ }"
+    },
+    "bufferOverflow": {
+      "problem": "Buffer overflows if data not read fast enough",
+      "solution": "Read data regularly, increase buffer size if needed",
+      "notes": "Arduino Uno has 64-byte buffer, ESP32 has 256-byte"
+    },
+    "waitForSerial": {
+      "problem": "Serial.begin() needs time to stabilize",
+      "solution": "Add delay(1000) or while(!Serial) for Leonardo/Micro",
+      "example": "Serial.begin(9600); delay(1000);"
+    },
+    "cableLength": {
+      "problem": "Long cables cause signal degradation",
+      "solution": "Use lower baud rates for cables > 15 feet",
+      "maxLength": "50 feet at 9600 baud, 15 feet at 115200 baud"
+    }
+  },
+  "debugging": {
+    "common_issues": [
+      {
+        "issue": "No data received",
+        "solutions": [
+          "Check TX->RX, RX->TX connections",
+          "Verify both devices use same baud rate",
+          "Check ground connection between devices",
+          "Ensure Serial.begin() called in setup()"
+        ]
+      },
+      {
+        "issue": "Garbage characters",
+        "solutions": [
+          "Baud rate mismatch - verify both sides",
+          "Cable too long for baud rate",
+          "Electrical noise - add ferrite cores",
+          "Check voltage levels (3.3V vs 5V logic)"
+        ]
+      },
+      {
+        "issue": "Data loss",
+        "solutions": [
+          "Buffer overflow - read data more frequently",
+          "Reduce transmission speed",
+          "Implement flow control (RTS/CTS)",
+          "Use larger buffer on ESP32"
+        ]
+      }
+    ]
+  },
+  "voltageConsiderations": {
+    "arduino5V": "TX outputs 5V - may damage 3.3V devices",
+    "esp32_3V3": "TX outputs 3.3V - safe for 5V devices to read",
+    "levelShifting": "Use voltage divider or level shifter when connecting 5V to 3.3V",
+    "example": "2.2kΩ and 3.3kΩ resistor divider for 5V->3.3V"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Arduino",
+  "scopeName": "source.arduino",
+  "patterns": [
+    { "include": "#keywords" },
+    { "include": "#arduino-functions" },
+    { "include": "#arduino-constants" },
+    { "include": "#arduino-types" },
+    { "include": "#hardware-specific" },
+    { "include": "source.c++" }
+  ],
+  "repository": {
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.arduino",
+          "match": "\\b(setup|loop)\\b"
+        }
+      ]
+    },
+    "arduino-functions": {
+      "patterns": [
+        {
+          "name": "support.function.digital.arduino",
+          "match": "\\b(pinMode|digitalWrite|digitalRead|attachInterrupt|detachInterrupt)\\b"
+        },
+        {
+          "name": "support.function.analog.arduino",
+          "match": "\\b(analogRead|analogWrite|analogReference)\\b"
+        },
+        {
+          "name": "support.function.time.arduino",
+          "match": "\\b(delay|delayMicroseconds|millis|micros)\\b"
+        },
+        {
+          "name": "support.function.serial.arduino",
+          "match": "\\b(Serial|print|println|begin|available|read|write|flush)\\b"
+        },
+        {
+          "name": "support.function.i2c.arduino",
+          "match": "\\b(Wire|beginTransmission|endTransmission|requestFrom|onReceive|onRequest)\\b"
+        },
+        {
+          "name": "support.function.spi.arduino",
+          "match": "\\b(SPI|beginTransaction|endTransaction|transfer|setBitOrder|setDataMode|setClockDivider)\\b"
+        },
+        {
+          "name": "support.function.math.arduino",
+          "match": "\\b(map|constrain|random|randomSeed|abs|min|max|pow|sqrt|sin|cos|tan)\\b"
+        },
+        {
+          "name": "support.function.tone.arduino",
+          "match": "\\b(tone|noTone)\\b"
+        }
+      ]
+    },
+    "arduino-constants": {
+      "patterns": [
+        {
+          "name": "constant.language.pin-mode.arduino",
+          "match": "\\b(INPUT|OUTPUT|INPUT_PULLUP)\\b"
+        },
+        {
+          "name": "constant.language.pin-state.arduino",
+          "match": "\\b(HIGH|LOW)\\b"
+        },
+        {
+          "name": "constant.language.interrupt.arduino",
+          "match": "\\b(RISING|FALLING|CHANGE|LOW)\\b"
+        },
+        {
+          "name": "constant.language.analog-ref.arduino",
+          "match": "\\b(DEFAULT|INTERNAL|INTERNAL1V1|INTERNAL2V56|EXTERNAL)\\b"
+        }
+      ]
+    },
+    "arduino-types": {
+      "patterns": [
+        {
+          "name": "storage.type.arduino",
+          "match": "\\b(boolean|byte|word|String)\\b"
+        }
+      ]
+    },
+    "hardware-specific": {
+      "patterns": [
+        {
+          "name": "variable.other.register.arduino",
+          "match": "\\b(TCCR[0-9][AB]|TCNT[0-9]|OCR[0-9][AB]|TIMSK[0-9]|TIFR[0-9]|PORTB|PORTC|PORTD|DDRB|DDRC|DDRD|PINB|PINC|PIND)\\b"
+        },
+        {
+          "name": "support.class.i2c-device.arduino",
+          "match": "\\b(0x[0-9A-Fa-f]{2})\\b"
+        }
+      ]
+    }
+  }
+}

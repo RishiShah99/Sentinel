@@ -1,0 +1,208 @@
+{
+  "id": "esp32-dev",
+  "name": "ESP32 DevKit",
+  "description": "ESP32 Development Board with dual-core Xtensa processor",
+  "mcu": "ESP32",
+  "architecture": "Xtensa LX6",
+  "clock": 240000000,
+  "voltage": 3.3,
+  "memory": {
+    "flash": 4194304,
+    "ram": 532480,
+    "psram": 0
+  },
+  "features": ["WiFi", "Bluetooth", "BLE", "Touch", "Hall Sensor", "ADC", "DAC"],
+  "pins": {
+    "digital": [0, 1, 2, 3, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33, 34, 35, 36, 39],
+    "analog": [32, 33, 34, 35, 36, 39],
+    "pwm": [0, 2, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32, 33],
+    "touch": [0, 2, 4, 12, 13, 14, 15, 27, 32, 33],
+    "dac": [25, 26],
+    "i2c": {
+      "sda": 21,
+      "scl": 22
+    },
+    "spi": {
+      "mosi": 23,
+      "miso": 19,
+      "sck": 18,
+      "ss": 5
+    },
+    "serial": {
+      "rx": 3,
+      "tx": 1
+    }
+  },
+  "pinInfo": {
+    "0": {
+      "name": "GPIO0/BOOT",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Boot mode selection, touch sensor T1",
+      "warnings": ["Must be HIGH during boot", "Connected to boot button"]
+    },
+    "2": {
+      "name": "GPIO2/LED",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Built-in LED, touch sensor T2",
+      "warnings": ["Must be LOW or floating during boot"]
+    },
+    "4": {
+      "name": "GPIO4",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T0, general purpose I/O"
+    },
+    "5": {
+      "name": "GPIO5/SS",
+      "capabilities": ["digital", "pwm", "spi-ss"],
+      "description": "SPI SS, general purpose I/O"
+    },
+    "12": {
+      "name": "GPIO12/MTDI",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T5, JTAG test data in",
+      "warnings": ["Must be LOW during boot for 3.3V flash"]
+    },
+    "13": {
+      "name": "GPIO13/MTCK",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T4, JTAG test clock"
+    },
+    "14": {
+      "name": "GPIO14/MTMS",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T6, JTAG test mode select"
+    },
+    "15": {
+      "name": "GPIO15/MTDO",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T3, JTAG test data out",
+      "warnings": ["Outputs PWM at boot"]
+    },
+    "18": {
+      "name": "GPIO18/SCK",
+      "capabilities": ["digital", "pwm", "spi-sck"],
+      "description": "SPI clock"
+    },
+    "19": {
+      "name": "GPIO19/MISO",
+      "capabilities": ["digital", "pwm", "spi-miso"],
+      "description": "SPI MISO"
+    },
+    "21": {
+      "name": "GPIO21/SDA",
+      "capabilities": ["digital", "pwm", "i2c-sda"],
+      "description": "I2C data line"
+    },
+    "22": {
+      "name": "GPIO22/SCL",
+      "capabilities": ["digital", "pwm", "i2c-scl"],
+      "description": "I2C clock line"
+    },
+    "23": {
+      "name": "GPIO23/MOSI",
+      "capabilities": ["digital", "pwm", "spi-mosi"],
+      "description": "SPI MOSI"
+    },
+    "25": {
+      "name": "GPIO25/DAC1",
+      "capabilities": ["digital", "pwm", "adc", "dac"],
+      "description": "DAC channel 1, ADC2_CH8"
+    },
+    "26": {
+      "name": "GPIO26/DAC2",
+      "capabilities": ["digital", "pwm", "adc", "dac"],
+      "description": "DAC channel 2, ADC2_CH9"
+    },
+    "27": {
+      "name": "GPIO27",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T7, ADC2_CH7"
+    },
+    "32": {
+      "name": "GPIO32",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T9, ADC1_CH4, XTAL_32K_P"
+    },
+    "33": {
+      "name": "GPIO33",
+      "capabilities": ["digital", "pwm", "touch", "adc"],
+      "description": "Touch sensor T8, ADC1_CH5, XTAL_32K_N"
+    },
+    "34": {
+      "name": "GPIO34",
+      "capabilities": ["analog", "input-only"],
+      "description": "ADC1_CH6, input only, no pull-up/down",
+      "warnings": ["Input only - cannot be used as output"]
+    },
+    "35": {
+      "name": "GPIO35",
+      "capabilities": ["analog", "input-only"],
+      "description": "ADC1_CH7, input only, no pull-up/down",
+      "warnings": ["Input only - cannot be used as output"]
+    },
+    "36": {
+      "name": "GPIO36/VP",
+      "capabilities": ["analog", "input-only"],
+      "description": "ADC1_CH0, input only, no pull-up/down",
+      "warnings": ["Input only - cannot be used as output"]
+    },
+    "39": {
+      "name": "GPIO39/VN",
+      "capabilities": ["analog", "input-only"],
+      "description": "ADC1_CH3, input only, no pull-up/down",
+      "warnings": ["Input only - cannot be used as output"]
+    }
+  },
+  "peripherals": {
+    "wifi": {
+      "protocols": ["802.11b", "802.11g", "802.11n"],
+      "modes": ["Station", "SoftAP", "Station+SoftAP"],
+      "maxConnections": 4
+    },
+    "bluetooth": {
+      "version": "4.2",
+      "profiles": ["BLE", "Classic"],
+      "maxConnections": 7
+    },
+    "adc": {
+      "resolution": 12,
+      "channels": 18,
+      "voltageRange": [0, 3.3],
+      "warnings": ["ADC2 cannot be used when WiFi is active"]
+    },
+    "dac": {
+      "resolution": 8,
+      "channels": 2,
+      "voltageRange": [0, 3.3]
+    },
+    "touchSensor": {
+      "channels": 10,
+      "sensitivity": "adjustable"
+    }
+  },
+  "constraints": {
+    "maxCurrent": {
+      "perPin": 40,
+      "total": 1200,
+      "unit": "mA"
+    },
+    "stackSize": {
+      "recommended": 4096,
+      "warning": 8192,
+      "unit": "bytes"
+    },
+    "voltageLevel": {
+      "logic": 3.3,
+      "tolerance": 0.3,
+      "warnings": ["5V inputs will damage GPIO pins"]
+    }
+  },
+  "commonIssues": [
+    "Strapping pins (0,2,5,12,15) have boot requirements",
+    "Input-only pins (34,35,36,39) cannot drive outputs",
+    "ADC2 conflicts with WiFi usage",
+    "Some pins output PWM signal at boot",
+    "Brown-out detector can cause unexpected resets",
+    "WiFi power consumption requires stable 500mA+ supply"
+  ]
+}

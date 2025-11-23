@@ -1,0 +1,226 @@
+{
+  "id": "arduino-uno",
+  "name": "Arduino Uno",
+  "description": "Arduino Uno R3 with ATmega328P microcontroller",
+  "mcu": "ATmega328P",
+  "architecture": "AVR",
+  "clock": 16000000,
+  "voltage": 5.0,
+  "memory": {
+    "flash": 32768,
+    "ram": 2048,
+    "eeprom": 1024
+  },
+  "pins": {
+    "digital": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+    "analog": [14, 15, 16, 17, 18, 19],
+    "pwm": [3, 5, 6, 9, 10, 11],
+    "interrupt": [2, 3],
+    "i2c": {
+      "sda": 18,
+      "scl": 19
+    },
+    "spi": {
+      "mosi": 11,
+      "miso": 12,
+      "sck": 13,
+      "ss": 10
+    },
+    "serial": {
+      "rx": 0,
+      "tx": 1
+    }
+  },
+  "pinInfo": {
+    "0": {
+      "name": "RX",
+      "capabilities": ["digital", "serial-rx"],
+      "description": "Serial receive pin, also digital I/O",
+      "warnings": ["Serial communication conflicts with digital use"]
+    },
+    "1": {
+      "name": "TX",
+      "capabilities": ["digital", "serial-tx"],
+      "description": "Serial transmit pin, also digital I/O",
+      "warnings": ["Serial communication conflicts with digital use"]
+    },
+    "2": {
+      "name": "INT0",
+      "capabilities": ["digital", "interrupt"],
+      "description": "External interrupt 0, digital I/O",
+      "interrupts": [0]
+    },
+    "3": {
+      "name": "INT1/PWM",
+      "capabilities": ["digital", "interrupt", "pwm"],
+      "description": "External interrupt 1, PWM, digital I/O",
+      "interrupts": [1],
+      "pwmTimer": "Timer2"
+    },
+    "5": {
+      "name": "PWM",
+      "capabilities": ["digital", "pwm"],
+      "description": "PWM output, digital I/O",
+      "pwmTimer": "Timer0"
+    },
+    "6": {
+      "name": "PWM",
+      "capabilities": ["digital", "pwm"],
+      "description": "PWM output, digital I/O",
+      "pwmTimer": "Timer0"
+    },
+    "9": {
+      "name": "PWM",
+      "capabilities": ["digital", "pwm"],
+      "description": "PWM output, digital I/O",
+      "pwmTimer": "Timer1"
+    },
+    "10": {
+      "name": "SS/PWM",
+      "capabilities": ["digital", "pwm", "spi-ss"],
+      "description": "SPI slave select, PWM, digital I/O",
+      "pwmTimer": "Timer1",
+      "warnings": ["Must be output for SPI master mode"]
+    },
+    "11": {
+      "name": "MOSI/PWM",
+      "capabilities": ["digital", "pwm", "spi-mosi"],
+      "description": "SPI MOSI, PWM, digital I/O",
+      "pwmTimer": "Timer2",
+      "warnings": ["SPI conflicts with other uses"]
+    },
+    "12": {
+      "name": "MISO",
+      "capabilities": ["digital", "spi-miso"],
+      "description": "SPI MISO, digital I/O",
+      "warnings": ["SPI conflicts with other uses"]
+    },
+    "13": {
+      "name": "SCK/LED",
+      "capabilities": ["digital", "spi-sck", "led"],
+      "description": "SPI clock, built-in LED, digital I/O",
+      "warnings": ["SPI conflicts with other uses", "Built-in LED causes visible flicker"]
+    },
+    "14": {
+      "name": "A0",
+      "capabilities": ["analog", "digital"],
+      "description": "Analog input 0, digital I/O",
+      "analogChannel": 0
+    },
+    "15": {
+      "name": "A1",
+      "capabilities": ["analog", "digital"],
+      "description": "Analog input 1, digital I/O",
+      "analogChannel": 1
+    },
+    "16": {
+      "name": "A2",
+      "capabilities": ["analog", "digital"],
+      "description": "Analog input 2, digital I/O",
+      "analogChannel": 2
+    },
+    "17": {
+      "name": "A3",
+      "capabilities": ["analog", "digital"],
+      "description": "Analog input 3, digital I/O",
+      "analogChannel": 3
+    },
+    "18": {
+      "name": "A4/SDA",
+      "capabilities": ["analog", "digital", "i2c-sda"],
+      "description": "Analog input 4, I2C data, digital I/O",
+      "analogChannel": 4,
+      "warnings": ["I2C conflicts with other uses"]
+    },
+    "19": {
+      "name": "A5/SCL",
+      "capabilities": ["analog", "digital", "i2c-scl"],
+      "description": "Analog input 5, I2C clock, digital I/O",
+      "analogChannel": 5,
+      "warnings": ["I2C conflicts with other uses"]
+    }
+  },
+  "registers": {
+    "PORTB": {
+      "address": "0x25",
+      "description": "Port B Data Register",
+      "bits": {
+        "0": "PB0 (Digital 8)",
+        "1": "PB1 (Digital 9/PWM)",
+        "2": "PB2 (Digital 10/PWM/SS)",
+        "3": "PB3 (Digital 11/PWM/MOSI)",
+        "4": "PB4 (Digital 12/MISO)",
+        "5": "PB5 (Digital 13/SCK/LED)"
+      }
+    },
+    "PORTC": {
+      "address": "0x28",
+      "description": "Port C Data Register (Analog pins)",
+      "bits": {
+        "0": "PC0 (A0)",
+        "1": "PC1 (A1)",
+        "2": "PC2 (A2)",
+        "3": "PC3 (A3)",
+        "4": "PC4 (A4/SDA)",
+        "5": "PC5 (A5/SCL)"
+      }
+    },
+    "PORTD": {
+      "address": "0x2B",
+      "description": "Port D Data Register",
+      "bits": {
+        "0": "PD0 (Digital 0/RX)",
+        "1": "PD1 (Digital 1/TX)",
+        "2": "PD2 (Digital 2/INT0)",
+        "3": "PD3 (Digital 3/INT1/PWM)",
+        "4": "PD4 (Digital 4)",
+        "5": "PD5 (Digital 5/PWM)",
+        "6": "PD6 (Digital 6/PWM)",
+        "7": "PD7 (Digital 7)"
+      }
+    }
+  },
+  "timers": {
+    "Timer0": {
+      "bits": 8,
+      "prescaler": [1, 8, 64, 256, 1024],
+      "pwmPins": [5, 6],
+      "usedBy": ["delay()", "millis()", "micros()"]
+    },
+    "Timer1": {
+      "bits": 16,
+      "prescaler": [1, 8, 64, 256, 1024],
+      "pwmPins": [9, 10],
+      "usedBy": ["Servo library"]
+    },
+    "Timer2": {
+      "bits": 8,
+      "prescaler": [1, 8, 32, 64, 128, 256, 1024],
+      "pwmPins": [3, 11],
+      "usedBy": ["tone()"]
+    }
+  },
+  "constraints": {
+    "maxCurrent": {
+      "perPin": 40,
+      "total": 200,
+      "unit": "mA"
+    },
+    "stackSize": {
+      "recommended": 512,
+      "warning": 1024,
+      "unit": "bytes"
+    },
+    "interruptLatency": {
+      "typical": 4,
+      "unit": "us"
+    }
+  },
+  "commonIssues": [
+    "Serial pins (0,1) conflict with USB programming",
+    "Pin 13 LED causes voltage drop on SPI clock",
+    "Timer0 used by delay() affects PWM on pins 5,6",
+    "Limited RAM requires careful memory management",
+    "Stack overflow common with deep recursion"
+  ]
+}

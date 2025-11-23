@@ -1,0 +1,139 @@
+{
+  "id": "i2c",
+  "name": "I2C (Inter-Integrated Circuit)",
+  "description": "Two-wire serial communication protocol for short-distance communication",
+  "aliases": ["TWI", "Two-Wire Interface"],
+  "pins": ["SDA", "SCL"],
+  "speed": {
+    "standard": 100000,
+    "fast": 400000,
+    "fastPlus": 1000000,
+    "highSpeed": 3400000
+  },
+  "addressing": {
+    "bits": 7,
+    "range": [8, 119],
+    "reserved": {
+      "0x00": "General call address",
+      "0x01-0x07": "Reserved for future use",
+      "0x78-0x7F": "10-bit addressing"
+    }
+  },
+  "commonDevices": {
+    "0x20-0x27": "PCF8574 I/O Expander",
+    "0x48-0x4F": "LM75 Temperature Sensor",
+    "0x50-0x57": "AT24C EEPROM",
+    "0x68": "DS1307 RTC, MPU6050 IMU",
+    "0x76-0x77": "BMP280 Pressure Sensor",
+    "0x3C-0x3D": "SSD1306 OLED Display"
+  },
+  "functions": {
+    "Wire.begin": {
+      "description": "Initialize I2C as master",
+      "parameters": [],
+      "returns": "void",
+      "example": "Wire.begin();"
+    },
+    "Wire.beginTransmission": {
+      "description": "Begin transmission to I2C device",
+      "parameters": [
+        {
+          "name": "address",
+          "type": "uint8_t",
+          "description": "7-bit I2C device address",
+          "validation": "Must be between 0x08 and 0x77"
+        }
+      ],
+      "returns": "void",
+      "example": "Wire.beginTransmission(0x68);"
+    },
+    "Wire.write": {
+      "description": "Write data to I2C device",
+      "parameters": [
+        {
+          "name": "data",
+          "type": "uint8_t or uint8_t*",
+          "description": "Data byte(s) to send"
+        }
+      ],
+      "returns": "size_t",
+      "example": "Wire.write(0x6B);"
+    },
+    "Wire.endTransmission": {
+      "description": "End transmission and send data",
+      "parameters": [
+        {
+          "name": "stop",
+          "type": "bool",
+          "description": "Send stop condition (default true)",
+          "optional": true
+        }
+      ],
+      "returns": "uint8_t (0=success, 1-4=error)",
+      "example": "Wire.endTransmission();"
+    },
+    "Wire.requestFrom": {
+      "description": "Request data from I2C device",
+      "parameters": [
+        {
+          "name": "address",
+          "type": "uint8_t",
+          "description": "7-bit I2C device address"
+        },
+        {
+          "name": "quantity",
+          "type": "uint8_t",
+          "description": "Number of bytes to request"
+        }
+      ],
+      "returns": "uint8_t (bytes received)",
+      "example": "Wire.requestFrom(0x68, 6);"
+    },
+    "Wire.available": {
+      "description": "Check bytes available to read",
+      "parameters": [],
+      "returns": "int",
+      "example": "while(Wire.available()) { ... }"
+    },
+    "Wire.read": {
+      "description": "Read a byte from I2C",
+      "parameters": [],
+      "returns": "uint8_t",
+      "example": "uint8_t data = Wire.read();"
+    }
+  },
+  "commonErrors": {
+    "addressOutOfRange": {
+      "code": "E_I2C_ADDR",
+      "message": "I2C address {address} is outside valid range (0x08-0x77)",
+      "severity": "error"
+    },
+    "reservedAddress": {
+      "code": "W_I2C_RESERVED",
+      "message": "I2C address {address} is reserved",
+      "severity": "warning"
+    },
+    "pullupMissing": {
+      "code": "W_I2C_PULLUP",
+      "message": "I2C requires external pull-up resistors on SDA and SCL",
+      "severity": "warning"
+    },
+    "clockStretch": {
+      "code": "W_I2C_STRETCH",
+      "message": "Some devices require clock stretching support",
+      "severity": "info"
+    }
+  },
+  "bestPractices": [
+    "Always use external pull-up resistors (4.7kΩ typical)",
+    "Check return value of endTransmission() for errors",
+    "Scan for devices before assuming address",
+    "Use proper termination on long cables",
+    "Avoid clock speeds above 100kHz without testing"
+  ],
+  "debugging": {
+    "scanner": "Use I2C scanner sketch to detect devices",
+    "pullupTest": "Measure SDA/SCL voltage when idle (should be ~VCC)",
+    "scopeCheck": "Use oscilloscope to verify clock and data signals"
+  }
+}

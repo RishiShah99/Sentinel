@@ -1,0 +1,369 @@
+{
+  "id": "wire",
+  "name": "Wire Library",
+  "description": "I2C/TWI communication library for Arduino",
+  "protocol": "I2C",
+  "include": "#include <Wire.h>",
+  "pins": {
+    "arduino-uno": {
+      "SDA": "A4",
+      "SCL": "A5"
+    },
+    "arduino-mega": {
+      "SDA": 20,
+      "SCL": 21
+    },
+    "esp32": {
+      "SDA": 21,
+      "SCL": 22,
+      "note": "Pins can be reconfigured with Wire.begin(SDA, SCL)"
+    }
+  },
+  "functions": {
+    "begin": {
+      "signatures": [
+        {
+          "signature": "void Wire.begin()",
+          "description": "Initialize I2C as master",
+          "examples": ["Wire.begin();"]
+        },
+        {
+          "signature": "void Wire.begin(uint8_t address)",
+          "description": "Initialize I2C as slave with address",
+          "parameters": [
+            {
+              "name": "address",
+              "type": "uint8_t",
+              "description": "7-bit I2C slave address (0x08 to 0x77)"
+            }
+          ],
+          "examples": ["Wire.begin(0x08);  // Slave with address 0x08"]
+        },
+        {
+          "signature": "void Wire.begin(int sda, int scl)",
+          "description": "Initialize I2C with custom pins (ESP32 only)",
+          "parameters": [
+            {
+              "name": "sda",
+              "type": "int",
+              "description": "SDA pin number"
+            },
+            {
+              "name": "scl",
+              "type": "int",
+              "description": "SCL pin number"
+            }
+          ],
+          "examples": ["Wire.begin(25, 26);  // Use GPIO 25/26 on ESP32"],
+          "notes": ["ESP32-specific feature"]
+        }
+      ],
+      "notes": [
+        "Call once in setup()",
+        "Enables internal pull-ups on some boards",
+        "Default speed is 100kHz (standard mode)"
+      ]
+    },
+    "setClock": {
+      "signature": "void Wire.setClock(uint32_t frequency)",
+      "description": "Set I2C clock speed",
+      "parameters": [
+        {
+          "name": "frequency",
+          "type": "uint32_t",
+          "description": "Clock frequency in Hz"
+        }
+      ],
+      "examples": [
+        "Wire.setClock(100000);  // Standard mode (100kHz)",
+        "Wire.setClock(400000);  // Fast mode (400kHz)",
+        "Wire.setClock(1000000); // Fast mode plus (1MHz, ESP32)"
+      ],
+      "notes": [
+        "Standard mode: 100kHz (default)",
+        "Fast mode: 400kHz (most common)",
+        "Fast mode plus: 1MHz (ESP32 only)",
+        "High speed: 3.4MHz (rarely used)"
+      ],
+      "warnings": [
+        "Not all devices support fast mode",
+        "Short cables required for high speeds",
+        "Pull-up resistor value affects maximum speed"
+      ]
+    },
+    "beginTransmission": {
+      "signature": "void Wire.beginTransmission(uint8_t address)",
+      "description": "Begin transmission to I2C slave",
+      "parameters": [
+        {
+          "name": "address",
+          "type": "uint8_t",
+          "description": "7-bit I2C address"
+        }
+      ],
+      "examples": [
+        "Wire.beginTransmission(0x68);  // Start transmission to MPU6050"
+      ],
+      "notes": [
+        "Must be followed by write() and endTransmission()",
+        "Does not actually send data until endTransmission()"
+      ]
+    },
+    "write": {
+      "signatures": [
+        {
+          "signature": "size_t Wire.write(uint8_t data)",
+          "description": "Queue single byte for transmission",
+          "parameters": [
+            {
+              "name": "data",
+              "type": "uint8_t",
+              "description": "Byte to send"
+            }
+          ],
+          "returns": "size_t (number of bytes written)",
+          "examples": ["Wire.write(0x6B);  // Write to register 0x6B"]
+        },
+        {
+          "signature": "size_t Wire.write(const uint8_t *data, size_t length)",
+          "description": "Queue multiple bytes for transmission",
+          "parameters": [
+            {
+              "name": "data",
+              "type": "const uint8_t*",
+              "description": "Array of bytes to send"
+            },
+            {
+              "name": "length",
+              "type": "size_t",
+              "description": "Number of bytes to send"
+            }
+          ],
+          "returns": "size_t (number of bytes written)",
+          "examples": [
+            "uint8_t data[] = {0x6B, 0x00};",
+            "Wire.write(data, 2);"
+          ]
+        }
+      ],
+      "notes": [
+        "Data is queued, not sent immediately",
+        "Buffer size is 32 bytes on most Arduinos",
+        "ESP32 has 128-byte buffer"
+      ]
+    },
+    "endTransmission": {
+      "signature": "uint8_t Wire.endTransmission(bool sendStop)",
+      "description": "End transmission and send queued data",
+      "parameters": [
+        {
+          "name": "sendStop",
+          "type": "bool",
+          "description": "Optional: true (default) sends STOP, false sends repeated START"
+        }
+      ],
+      "returns": "uint8_t (status code)",
+      "returnValues": [
+        {"value": 0, "meaning": "Success"},
+        {"value": 1, "meaning": "Data too long for buffer"},
+        {"value": 2, "meaning": "NACK on address (device not found)"},
+        {"value": 3, "meaning": "NACK on data"},
+        {"value": 4, "meaning": "Other error"},
+        {"value": 5, "meaning": "Timeout (ESP32)"}
+      ],
+      "examples": [
+        "uint8_t error = Wire.endTransmission();",
+        "if (error == 0) { Serial.println(\"Success\"); }",
+        "else { Serial.println(\"Error: \" + String(error)); }"
+      ],
+      "notes": [
+        "Always check return value for errors",
+        "NACK on address (2) means device not responding"
+      ]
+    },
+    "requestFrom": {
+      "signature": "uint8_t Wire.requestFrom(uint8_t address, uint8_t quantity, bool sendStop)",
+      "description": "Request data from I2C slave",
+      "parameters": [
+        {
+          "name": "address",
+          "type": "uint8_t",
+          "description": "7-bit I2C address"
+        },
+        {
+          "name": "quantity",
+          "type": "uint8_t",
+          "description": "Number of bytes to request"
+        },
+        {
+          "name": "sendStop",
+          "type": "bool",
+          "description": "Optional: true (default) sends STOP"
+        }
+      ],
+      "returns": "uint8_t (number of bytes received)",
+      "examples": [
+        "Wire.requestFrom(0x68, 6);  // Request 6 bytes from MPU6050",
+        "while (Wire.available()) { uint8_t data = Wire.read(); }"
+      ],
+      "notes": [
+        "Data is buffered, use read() to retrieve",
+        "Returns actual bytes received (may be less than requested)"
+      ]
+    },
+    "available": {
+      "signature": "int Wire.available(void)",
+      "description": "Returns number of bytes available to read",
+      "returns": "int (number of bytes)",
+      "examples": [
+        "Wire.requestFrom(0x68, 2);",
+        "if (Wire.available() >= 2) { /* read data */ }"
+      ]
+    },
+    "read": {
+      "signature": "int Wire.read(void)",
+      "description": "Read next byte from I2C buffer",
+      "returns": "int (0-255) or -1 if no data",
+      "examples": [
+        "uint8_t data = Wire.read();",
+        "int16_t value = (Wire.read() << 8) | Wire.read();  // Read 16-bit"
+      ],
+      "notes": [
+        "Returns -1 if no data available",
+        "Reads from buffer filled by requestFrom()"
+      ]
+    },
+    "onReceive": {
+      "signature": "void Wire.onReceive(void (*handler)(int))",
+      "description": "Register function to call when data received (slave mode)",
+      "parameters": [
+        {
+          "name": "handler",
+          "type": "function",
+          "description": "Function to call with number of bytes received"
+        }
+      ],
+      "examples": [
+        "void receiveEvent(int numBytes) { while (Wire.available()) { Wire.read(); } }",
+        "Wire.onReceive(receiveEvent);"
+      ],
+      "notes": ["Slave mode only", "Keep handler short"]
+    },
+    "onRequest": {
+      "signature": "void Wire.onRequest(void (*handler)(void))",
+      "description": "Register function to call when master requests data (slave mode)",
+      "parameters": [
+        {
+          "name": "handler",
+          "type": "function",
+          "description": "Function to call to send data"
+        }
+      ],
+      "examples": [
+        "void requestEvent() { Wire.write(sensorData); }",
+        "Wire.onRequest(requestEvent);"
+      ],
+      "notes": ["Slave mode only", "Use Wire.write() in handler"]
+    }
+  },
+  "commonPatterns": {
+    "writeRegister": {
+      "description": "Write value to device register",
+      "code": [
+        "Wire.beginTransmission(address);",
+        "Wire.write(registerAddress);",
+        "Wire.write(value);",
+        "Wire.endTransmission();"
+      ]
+    },
+    "readRegister": {
+      "description": "Read value from device register",
+      "code": [
+        "Wire.beginTransmission(address);",
+        "Wire.write(registerAddress);",
+        "Wire.endTransmission(false);  // Repeated START",
+        "Wire.requestFrom(address, 1);",
+        "if (Wire.available()) { value = Wire.read(); }"
+      ]
+    },
+    "readMultipleBytes": {
+      "description": "Read multiple bytes starting at register",
+      "code": [
+        "Wire.beginTransmission(address);",
+        "Wire.write(registerAddress);",
+        "Wire.endTransmission(false);",
+        "Wire.requestFrom(address, numBytes);",
+        "for (int i = 0; i < numBytes; i++) { data[i] = Wire.read(); }"
+      ]
+    },
+    "i2cScanner": {
+      "description": "Scan I2C bus for devices",
+      "code": [
+        "for (uint8_t addr = 1; addr < 127; addr++) {",
+        "  Wire.beginTransmission(addr);",
+        "  if (Wire.endTransmission() == 0) {",
+        "    Serial.print(\"Device found at 0x\");",
+        "    Serial.println(addr, HEX);",
+        "  }",
+        "}"
+      ]
+    }
+  },
+  "bestPractices": {
+    "errorChecking": {
+      "problem": "I2C communication can fail silently",
+      "solution": "Always check endTransmission() return value",
+      "example": "if (Wire.endTransmission() != 0) { /* handle error */ }"
+    },
+    "pullUpResistors": {
+      "problem": "I2C requires pull-up resistors",
+      "solution": "Use 2.2kΩ - 10kΩ resistors to VCC",
+      "notes": [
+        "Many breakout boards include pull-ups",
+        "Lower values for longer cables/higher speeds",
+        "4.7kΩ is common default"
+      ]
+    },
+    "repeatedStart": {
+      "problem": "Some devices require repeated START",
+      "solution": "Use endTransmission(false) for repeated START",
+      "example": "Wire.endTransmission(false); Wire.requestFrom(...);"
+    },
+    "bufferLimits": {
+      "problem": "Wire buffer is limited (32 bytes Uno, 128 bytes ESP32)",
+      "solution": "Break large transfers into chunks",
+      "example": "Read/write maximum 30 bytes at a time on Uno"
+    }
+  },
+  "troubleshooting": {
+    "deviceNotFound": {
+      "error": "endTransmission() returns 2",
+      "solutions": [
+        "Check wiring (SDA, SCL, GND, VCC)",
+        "Verify device address is correct",
+        "Check pull-up resistors present",
+        "Ensure device powered on",
+        "Try I2C scanner to find device"
+      ]
+    },
+    "dataCorruption": {
+      "symptoms": "Wrong values read",
+      "solutions": [
+        "Add pull-up resistors if missing",
+        "Reduce I2C speed with setClock()",
+        "Shorten cable length",
+        "Check for electrical noise",
+        "Ensure common ground connection"
+      ]
+    },
+    "hangs": {
+      "symptoms": "Program freezes during I2C communication",
+      "solutions": [
+        "Check for clock stretching issues",
+        "Ensure slave device responding",
+        "Add timeout handling (ESP32 has built-in)",
+        "Check for bus contention (multiple masters)"
+      ]
+    }
+  }
+}

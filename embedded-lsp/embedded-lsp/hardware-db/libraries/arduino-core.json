@@ -1,0 +1,251 @@
+{
+  "id": "arduino-core",
+  "name": "Arduino Core Library",
+  "description": "Core Arduino functions for digital I/O, analog I/O, and timing",
+  "functions": {
+    "pinMode": {
+      "signature": "void pinMode(uint8_t pin, uint8_t mode)",
+      "description": "Configures the specified pin to behave as input or output",
+      "parameters": [
+        {
+          "name": "pin",
+          "type": "uint8_t",
+          "description": "Pin number (0-21 on Uno, board-specific)"
+        },
+        {
+          "name": "mode",
+          "type": "uint8_t",
+          "description": "INPUT, OUTPUT, or INPUT_PULLUP"
+        }
+      ],
+      "returns": "void",
+      "examples": [
+        "pinMode(13, OUTPUT);  // Set LED pin as output",
+        "pinMode(2, INPUT_PULLUP);  // Enable internal pull-up"
+      ],
+      "notes": [
+        "Analog pins can also be used as digital pins",
+        "INPUT_PULLUP enables 20-50kΩ internal pull-up resistor"
+      ],
+      "warnings": [
+        "Pin numbers are board-specific",
+        "Setting PWM pin to OUTPUT disables PWM"
+      ]
+    },
+    "digitalWrite": {
+      "signature": "void digitalWrite(uint8_t pin, uint8_t value)",
+      "description": "Write HIGH or LOW to a digital pin",
+      "parameters": [
+        {
+          "name": "pin",
+          "type": "uint8_t",
+          "description": "Pin number"
+        },
+        {
+          "name": "value",
+          "type": "uint8_t",
+          "description": "HIGH (1/5V) or LOW (0/0V)"
+        }
+      ],
+      "returns": "void",
+      "examples": [
+        "digitalWrite(13, HIGH);  // Turn on LED",
+        "digitalWrite(13, LOW);   // Turn off LED"
+      ],
+      "notes": [
+        "Pin must be configured as OUTPUT first",
+        "Can enable pull-up on INPUT pins by writing HIGH"
+      ]
+    },
+    "digitalRead": {
+      "signature": "int digitalRead(uint8_t pin)",
+      "description": "Read the value from a digital pin",
+      "parameters": [
+        {
+          "name": "pin",
+          "type": "uint8_t",
+          "description": "Pin number"
+        }
+      ],
+      "returns": "int (HIGH or LOW)",
+      "examples": [
+        "int buttonState = digitalRead(2);",
+        "if (digitalRead(2) == HIGH) { ... }"
+      ],
+      "notes": [
+        "Returns HIGH if voltage > 3V (5V boards)",
+        "Returns LOW if voltage < 1.5V (5V boards)",
+        "Input with no connection may float between HIGH/LOW"
+      ]
+    },
+    "analogRead": {
+      "signature": "int analogRead(uint8_t pin)",
+      "description": "Read analog voltage from ADC pin",
+      "parameters": [
+        {
+          "name": "pin",
+          "type": "uint8_t",
+          "description": "Analog pin number (A0-A5 on Uno)"
+        }
+      ],
+      "returns": "int (0-1023 for 10-bit ADC)",
+      "examples": [
+        "int sensorValue = analogRead(A0);",
+        "float voltage = analogRead(A0) * (5.0 / 1023.0);"
+      ],
+      "notes": [
+        "Takes ~100 microseconds to complete",
+        "Returns 10-bit value (0-1023) on most boards",
+        "ESP32 has 12-bit ADC (0-4095)"
+      ],
+      "warnings": [
+        "Don't exceed AREF voltage",
+        "Input impedance should be < 10kΩ"
+      ]
+    },
+    "analogWrite": {
+      "signature": "void analogWrite(uint8_t pin, int value)",
+      "description": "Output PWM signal to a pin",
+      "parameters": [
+        {
+          "name": "pin",
+          "type": "uint8_t",
+          "description": "PWM-capable pin number"
+        },
+        {
+          "name": "value",
+          "type": "int",
+          "description": "Duty cycle 0 (0%) to 255 (100%)"
+        }
+      ],
+      "returns": "void",
+      "examples": [
+        "analogWrite(9, 128);  // 50% duty cycle",
+        "analogWrite(10, 255); // 100% duty cycle (always HIGH)"
+      ],
+      "notes": [
+        "Only works on PWM pins (marked with ~ on most boards)",
+        "Frequency is ~490Hz on most pins",
+        "Does NOT output actual analog voltage"
+      ],
+      "warnings": [
+        "Not all pins support PWM",
+        "Timer conflicts can affect multiple pins"
+      ]
+    },
+    "delay": {
+      "signature": "void delay(unsigned long ms)",
+      "description": "Pause program for specified milliseconds",
+      "parameters": [
+        {
+          "name": "ms",
+          "type": "unsigned long",
+          "description": "Milliseconds to pause"
+        }
+      ],
+      "returns": "void",
+      "examples": [
+        "delay(1000);  // Wait 1 second",
+        "delay(500);   // Wait 500ms"
+      ],
+      "warnings": [
+        "Blocks all other code from running",
+        "Disables interrupts on some boards",
+        "Use millis() for non-blocking delays",
+        "Long delays can cause watchdog timer reset on ESP32"
+      ]
+    },
+    "delayMicroseconds": {
+      "signature": "void delayMicroseconds(unsigned int us)",
+      "description": "Pause program for specified microseconds",
+      "parameters": [
+        {
+          "name": "us",
+          "type": "unsigned int",
+          "description": "Microseconds to pause"
+        }
+      ],
+      "returns": "void",
+      "examples": [
+        "delayMicroseconds(10);  // Wait 10 microseconds"
+      ],
+      "notes": [
+        "Maximum value is 16383 on some boards",
+        "Accurate for values > 3 microseconds"
+      ]
+    },
+    "millis": {
+      "signature": "unsigned long millis(void)",
+      "description": "Returns milliseconds since program started",
+      "parameters": [],
+      "returns": "unsigned long (milliseconds)",
+      "examples": [
+        "unsigned long startTime = millis();",
+        "if (millis() - previousTime >= 1000) { ... }"
+      ],
+      "notes": [
+        "Overflows after ~50 days",
+        "Resolution is 1-4 milliseconds",
+        "Uses Timer0 - affects pins 5, 6 on Uno"
+      ],
+      "bestPractice": "Use for non-blocking delays"
+    },
+    "micros": {
+      "signature": "unsigned long micros(void)",
+      "description": "Returns microseconds since program started",
+      "parameters": [],
+      "returns": "unsigned long (microseconds)",
+      "examples": [
+        "unsigned long duration = micros() - startTime;"
+      ],
+      "notes": [
+        "Overflows after ~70 minutes",
+        "Resolution is 4 microseconds on most boards"
+      ]
+    }
+  },
+  "constants": {
+    "HIGH": {
+      "value": 1,
+      "description": "Logic level HIGH (5V or 3.3V)"
+    },
+    "LOW": {
+      "value": 0,
+      "description": "Logic level LOW (0V)"
+    },
+    "INPUT": {
+      "value": 0,
+      "description": "Pin configured as input"
+    },
+    "OUTPUT": {
+      "value": 1,
+      "description": "Pin configured as output"
+    },
+    "INPUT_PULLUP": {
+      "value": 2,
+      "description": "Input with internal pull-up resistor enabled"
+    },
+    "LED_BUILTIN": {
+      "value": 13,
+      "description": "Built-in LED pin (board-specific)",
+      "note": "Pin 2 on ESP32, pin 13 on Arduino Uno"
+    }
+  },
+  "bestPractices": {
+    "nonBlockingDelay": {
+      "problem": "delay() blocks all code execution",
+      "solution": "Use millis() for non-blocking timing",
+      "example": "if (millis() - previousMillis >= interval) { previousMillis = millis(); /* do something */ }"
+    },
+    "debouncing": {
+      "problem": "Mechanical switches bounce",
+      "solution": "Add debounce logic",
+      "example": "Wait 50ms after state change before reading again"
+    },
+    "pullResistors": {
+      "problem": "Floating inputs read random values",
+      "solution": "Use INPUT_PULLUP or external pull-down resistor",
+      "example": "pinMode(2, INPUT_PULLUP);"
+    }
+  }
+}
