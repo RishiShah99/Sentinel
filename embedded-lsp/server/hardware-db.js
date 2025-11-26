@@ -1,6 +1,4 @@
 /**
- * Hardware Database - The Brain of OrbitIDE's Intelligence
- * 
  * This module maintains comprehensive hardware information for all supported
  * development boards, microcontrollers, and embedded systems.
  */
