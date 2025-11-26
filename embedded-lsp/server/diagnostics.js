@@ -1,6 +1,4 @@
 /**
- * Embedded Diagnostic Provider - Real-Time Hardware Constraint Validation
- * 
  * This module provides intelligent diagnostics that catch embedded-specific issues:
  * - Stack overflow risks
  * - Pin conflicts and invalid configurations
