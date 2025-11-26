@@ -1,5 +1,5 @@
 {
-  "name": "orbit-embedded-lsp",
+  "name": "sentinel-embedded-lsp",
   "version": "1.0.0",
   "description": "Revolutionary embedded systems Language Server Protocol for OrbitIDE",
   "main": "server/main.js",
@@ -32,11 +32,11 @@
     "code-completion",
     "hardware-aware"
   ],
-  "author": "OrbitIDE Team",
+  "author": "Sentinel Team",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RishiShah99/OrbitIDE.git",
+    "url": "https://github.com/RishiShah99/Sentinel.git",
     "directory": "embedded-lsp"
   }
 }
