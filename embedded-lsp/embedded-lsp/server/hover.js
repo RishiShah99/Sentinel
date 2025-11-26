@@ -1,6 +1,4 @@
 /**
- * Embedded Hover Provider - Rich Documentation and Hardware Information
- * 
  * This module provides detailed hover information for:
  * - Hardware registers with bit-level documentation
  * - Pin functions and capabilities
