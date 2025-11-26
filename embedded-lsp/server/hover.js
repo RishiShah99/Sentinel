@@ -1,11 +1,9 @@
 /**
- * Embedded Hover Provider - Rich Documentation and Hardware Information
- * 
  * This module provides detailed hover information for:
- * - Hardware registers with bit-level documentation
- * - Pin functions and capabilities
- * - Protocol specifications and timing
- * - Function signatures with embedded-specific context
+ * Hardware registers with bit-level documentation
+ * Pin functions and capabilities
+ * Protocol specifications and timing
+ * Function signatures with embedded-specific context
  */
 
 const { Hover, MarkupKind } = require('vscode-languageserver/node');
