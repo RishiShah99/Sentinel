@@ -1,11 +1,3 @@
-/**
- * OrbitIDE Embedded Language Server
- * 
- * Revolutionary LSP that understands embedded systems at the hardware level.
- * This goes far beyond basic C++ completion - it knows registers, peripherals,
- * timing constraints, and hardware limitations.
- */
-
 const {
     createConnection,
     TextDocuments,
