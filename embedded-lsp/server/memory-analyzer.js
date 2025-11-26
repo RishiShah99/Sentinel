@@ -269,14 +269,6 @@ class MemoryAnalyzer {
     }
 
     analyzeStackUsage(text, analysis) {
-        // Estimate stack usage based on function call depth
-        // Note: This is a conservative estimate. Actual stack usage depends on:
-        // - Function call depth
-        // - Local variables in each function
-        // - Compiler optimizations
-        
-        // Stack estimation based on typical Arduino sketch patterns
-        // Most sketches: setup() -> loop() -> 1-2 helper functions
         
         // Count function definitions
         const functionPattern = /\b(?:void|int|float|char|bool|long|short|byte)\s+\w+\s*\([^)]*\)\s*{/g;
@@ -287,8 +279,6 @@ class MemoryAnalyzer {
         // Compiler optimizes most local vars to registers
         let callDepth = Math.min(functionCount > 5 ? 3 : 2, 3);
         analysis.ram.stackEstimate = callDepth * 14;
-        
-        // No warnings for stack - keep UI clean
     }
 
     estimateFrameworkOverhead(text) {
